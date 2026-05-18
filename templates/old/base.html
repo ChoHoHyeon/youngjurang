@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}영주랑{% endblock %} — 관광에서 귀촌까지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="nav-brand">
+    <span class="brand-icon">🌿</span>
+    <span class="brand-name">영주랑</span>
+    <span class="brand-sub">YoungJuRang</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+      <span class="nav-icon">📊</span>인구위기
+    </a></li>
+    <li><a href="/matching" class="nav-link {% if request.path == '/matching' %}active{% endif %}">
+      <span class="nav-icon">🏡</span>귀촌매칭
+    </a></li>
+    <li><a href="/tour" class="nav-link {% if request.path == '/tour' %}active{% endif %}">
+      <span class="nav-icon">🗺️</span>관광지
+    </a></li>
+    <li><a href="/chat" class="nav-link {% if request.path == '/chat' %}active{% endif %}">
+      <span class="nav-icon">💬</span>AI상담
+    </a></li>
+  </ul>
+</nav>
+
+<main class="main-content">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <p>© 2026 영주랑 · 공공데이터 기반 귀촌 의사결정 플랫폼 · 데이터 출처: 행정안전부, 농림축산식품부, 보건복지부</p>
+</footer>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

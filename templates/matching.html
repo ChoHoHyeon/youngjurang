@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% block title %}귀촌 조건 매칭{% endblock %}
+
+{% block content %}
+<div class="matching-page">
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">Settlement Matching</p>
+    <h1 class="page-title">귀촌 조건 매칭</h1>
+    <p class="page-desc">중요도 슬라이더를 조정하면 데이터 기반 점수화 알고리즘이 최적 읍면을 추천합니다</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="grid-2">
+
+    <!-- 조건 입력 -->
+    <div class="card card-lg">
+      <div class="section-title">귀촌 조건 중요도 설정</div>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:1.5rem;">슬라이더로 각 항목의 중요도를 조정하세요 (합계 100%)</p>
+
+      <div class="slider-row">
+        <span class="slider-label">🏥 의료</span>
+        <div class="slider-wrap">
+          <input type="range" id="w_의료" min="0" max="100" value="30" oninput="updateSlider()">
+        </div>
+        <span class="slider-val" id="v_의료">30</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">🏚️ 빈집</span>
+        <div class="slider-wrap">
+          <input type="range" id="w_빈집" min="0" max="100" value="25" oninput="updateSlider()">
+        </div>
+        <span class="slider-val" id="v_빈집">25</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">🌲 자연</span>
+        <div class="slider-wrap">
+          <input type="range" id="w_공원" min="0" max="100" value="15" oninput="updateSlider()">
+        </div>
+        <span class="slider-val" id="v_공원">15</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">🗺️ 관광</span>
+        <div class="slider-wrap">
+          <input type="range" id="w_관광" min="0" max="100" value="15" oninput="updateSlider()">
+        </div>
+        <span class="slider-val" id="v_관광">15</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">🏠 민박</span>
+        <div class="slider-wrap">
+          <input type="range" id="w_민박" min="0" max="100" value="15" oninput="updateSlider()">
+        </div>
+        <span class="slider-val" id="v_민박">15</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:1.2rem 0 1.5rem;padding:10px 14px;background:var(--gray-100);border-radius:var(--radius-sm);">
+        <span style="font-size:13px;color:var(--gray-500);">가중치 합계</span>
+        <span id="total-weight" style="font-size:15px;font-weight:700;color:var(--green-mid)">100%</span>
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" onclick="getRecommendation()">
+        최적 귀촌지 추천받기 →
+      </button>
+
+      <!-- 지표 설명 -->
+      <div style="margin-top:1.5rem;padding:14px;background:var(--green-pale);border-radius:var(--radius-md);">
+        <p style="font-size:12px;font-weight:600;color:var(--green-dark);margin-bottom:8px;">지표 설명</p>
+        <p style="font-size:11px;color:var(--green-dark);line-height:1.8;">
+          🏥 <b>의료</b>: 읍면동 내 병원·의원·약국 수<br>
+          🏚️ <b>빈집</b>: 활용 가능한 빈집 수 및 비율<br>
+          🌲 <b>자연</b>: 공원 수 및 총 녹지 면적<br>
+          🗺️ <b>관광</b>: 관광지 수 (생활 문화 인프라)<br>
+          🏠 <b>민박</b>: 농어촌 민박 수 및 객실 수
+        </p>
+      </div>
+    </div>
+
+    <!-- 추천 결과 -->
+    <div>
+      <div class="card card-lg">
+        <div class="section-title">추천 읍면동 TOP 5</div>
+        <div id="result-list">
+          <div style="text-align:center;padding:2rem;color:#d1d5db;">
+            <div style="font-size:2.5rem;margin-bottom:8px;">🏡</div>
+            <p style="font-size:13px;">조건을 설정하고 추천받기를 눌러주세요</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 레이더 차트 - 하단 보너스 섹션 -->
+  <div style="margin-top:1.5rem;">
+    <div class="card card-lg">
+      <div class="section-title">지표별 점수 비교 (상위 3개 읍면동)</div>
+      <div style="position:relative;height:260px;">
+        <canvas id="radarChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const SCORE_DATA = {{ score_data | safe }};
+let radarChart = null;
+
+const TAGS = {
+  '의료 우수': 'tag-blue',
+  '빈집 풍부': 'tag-amber',
+  '녹지 우수': 'tag-green',
+  '관광 풍부': 'tag-green',
+  '숙박 편리': 'tag-amber',
+  '균형적':    'tag-gray',
+};
+
+function updateSlider() {
+  ['의료','빈집','공원','관광','민박'].forEach(k => {
+    document.getElementById(`v_${k}`).textContent = document.getElementById(`w_${k}`).value;
+  });
+  const total = ['의료','빈집','공원','관광','민박']
+    .reduce((s,k) => s + parseInt(document.getElementById(`w_${k}`).value), 0);
+  const el = document.getElementById('total-weight');
+  el.textContent = total + '%';
+  el.style.color = Math.abs(total - 100) <= 5 ? 'var(--green-mid)' : 'var(--red)';
+}
+
+let currentWeights = {};
+async function getRecommendation() {
+  const weights = {};
+  ['의료','빈집','공원','관광','민박'].forEach(k => {
+    weights[k] = parseInt(document.getElementById(`w_${k}`).value);
+  });
+
+  currentWeights = {...weights};
+  const res = await fetch('/api/match', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(weights)
+  });
+  const data = await res.json();
+  renderResults(data, weights);
+}
+
+function renderResults(data, weights={}) {
+  const el = document.getElementById('result-list');
+  el.innerHTML = '';
+
+  const rankClasses = ['rank-1','rank-2','rank-3','rank-n','rank-n'];
+
+  data.forEach((d, i) => {
+    const reasons = [];
+    const full = SCORE_DATA.find(s => s['읍면동'] === d['읍면동']) || {};
+    if ((full['의료_score']||0) >= 70) reasons.push('의료 우수');
+    if ((full['빈집_score']||0) >= 60) reasons.push('빈집 풍부');
+    if ((full['공원_score']||0) >= 60) reasons.push('녹지 우수');
+    if ((full['관광_score']||0) >= 60) reasons.push('관광 풍부');
+    if ((full['민박_score']||0) >= 60) reasons.push('숙박 편리');
+    if (!reasons.length) reasons.push('균형적');
+
+    const tagsHtml = reasons.map(r =>
+      `<span class="tag ${TAGS[r]||'tag-gray'}">${r}</span>`
+    ).join('');
+
+    const commentId = 'comment-' + i;
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.style.cssText = 'display:block !important; padding:14px 18px !important;';
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <span class="rank-badge ${rankClasses[i]}">${i+1}</span>
+        <div style="flex:1;min-width:0;">
+          <div class="result-name">${d['읍면동']}</div>
+          <div class="result-tags" style="margin-top:4px;">${tagsHtml}</div>
+        </div>
+        <div class="result-score" style="text-align:right;flex-shrink:0;">
+          <div class="score-num">${Math.round(d['사용자점수'])}</div>
+          <div class="score-unit">점</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:6px;padding-left:42px;">
+        의료 ${d['의료기관수']}개 &middot; 빈집 ${d['활용가능수']}개 &middot; 관광지 ${d['관광지수']}개 &middot; 민박 ${d['민박수']}개
+      </div>
+      <div id="${commentId}" style="padding:8px 12px;background:linear-gradient(135deg,#f0f7f4,#e8f5f0);border-radius:10px;border-left:3px solid #2f6b57;font-size:12.5px;color:#1a4a38;font-weight:500;line-height:1.65;min-height:36px;">
+        <span style="color:#a3c9bc;font-size:11px;">✦ AI 코멘트 생성 중...</span>
+      </div>`;
+    el.appendChild(card);
+
+    // Gemini 코멘트 비동기 요청
+    fetch('/api/comment', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        region: d['읍면동'],
+        weights: weights,
+        stats: {
+          의료기관수: d['의료기관수'],
+          활용가능수: d['활용가능수'],
+          관광지수: d['관광지수'],
+          민박수: d['민박수'],
+          점수: Math.round(d['사용자점수'])
+        }
+      })
+    }).then(r => r.json()).then(c => {
+      const el = document.getElementById(commentId);
+      if (el) el.innerHTML = c.comment || '';
+    }).catch(() => {
+      const el = document.getElementById(commentId);
+      if (el) el.innerHTML = '';
+    });
+  });
+
+  // 레이더 차트 - SCORE_DATA에서 점수 직접 참조
+  const top3 = data.slice(0,3).map(d => {
+    // API 응답에 점수가 없으면 SCORE_DATA에서 찾기
+    const full = SCORE_DATA.find(s => s['읍면동'] === d['읍면동']) || {};
+    return {
+      name: d['읍면동'],
+      의료: full['의료_score'] || full['의료score'] || 0,
+      빈집: full['빈집_score'] || full['빈집score'] || 0,
+      공원: full['공원_score'] || full['공원score'] || 0,
+      관광: full['관광_score'] || full['관광score'] || 0,
+      민박: full['민박_score'] || full['민박score'] || 0,
+    };
+  });
+
+  const colors = [
+    { border:'rgba(47,107,87,0.85)',  bg:'rgba(47,107,87,0.12)'  },
+    { border:'rgba(29,111,165,0.85)', bg:'rgba(29,111,165,0.12)' },
+    { border:'rgba(224,122,31,0.85)', bg:'rgba(224,122,31,0.12)' },
+  ];
+
+  if (radarChart) radarChart.destroy();
+  radarChart = new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: ['의료','빈집','자연공원','관광','민박'],
+      datasets: top3.map((d,i) => ({
+        label: d.name,
+        data: [d.의료, d.빈집, d.공원, d.관광, d.민박],
+        borderColor: colors[i].border,
+        backgroundColor: colors[i].bg,
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: colors[i].border,
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: 100,
+          ticks: { stepSize: 25, font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.08)' },
+          pointLabels: { font: { size: 12, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 16 } }
+      }
+    }
+  });
+}
+
+// 초기 로드 시 기본 추천
+window.addEventListener('load', getRecommendation);
+</script>
+{% endblock %}

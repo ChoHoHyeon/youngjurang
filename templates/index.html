@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}영주랑 — 관광에서 귀촌까지{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-left">
+        <p class="hero-eyebrow">공공데이터 기반 귀촌 의사결정 플랫폼</p>
+        <h1 class="hero-title">
+          영주에서<br>
+          <em>새로운 삶</em>을<br>
+          시작하세요
+        </h1>
+        <p class="hero-desc">
+          소백산, 부석사, 무섬마을의 고장 영주시.<br>
+          데이터가 당신에게 딱 맞는 귀촌지를 추천합니다.
+        </p>
+        <div class="hero-btns">
+          <a href="/matching" class="btn btn-primary btn-lg">귀촌지 추천받기 →</a>
+          <a href="/tour" class="btn btn-lg hero-outline-btn">영주 관광 둘러보기</a>
+        </div>
+      </div>
+
+      <div class="hero-right" aria-hidden="true">
+        <div class="floating-card recommend-card">
+          <div class="floating-kicker">AI 추천 귀촌지</div>
+          <div class="floating-title">풍기읍</div>
+          <div class="floating-score"><span>92</span>점</div>
+          <div class="floating-desc">의료 · 관광 · 생활 인프라 균형 우수</div>
+        </div>
+
+        <div class="floating-card image-card">
+          <div class="image-thumb"></div>
+          <div class="image-info">
+            <div class="floating-kicker">영주 대표 관광</div>
+            <div class="image-title">부석사 · 소백산권</div>
+          </div>
+        </div>
+
+        <div class="floating-card chart-card">
+          <div class="floating-kicker">데이터 인사이트</div>
+          <div class="mini-chart">
+            <span style="height:42%"></span>
+            <span style="height:58%"></span>
+            <span style="height:45%"></span>
+            <span style="height:72%"></span>
+            <span style="height:86%"></span>
+          </div>
+          <div class="floating-desc">방문 관심 → 귀촌 전환 가능성 분석</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-val">97,162</div>
+        <div class="hero-stat-label">2025년 영주시 인구</div>
+      </div>
+      <div>
+        <div class="hero-stat-val">950만+</div>
+        <div class="hero-stat-label">연간 외지인 방문객</div>
+      </div>
+      <div>
+        <div class="hero-stat-val">30개+</div>
+        <div class="hero-stat-label">활용 공공데이터</div>
+      </div>
+      <div>
+        <div class="hero-stat-val">15개</div>
+        <div class="hero-stat-label">읍면동 귀촌 분석</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="feature-grid">
+  <a href="/dashboard" class="feature-card">
+    <div class="feature-icon">📊</div>
+    <div class="feature-title">인구위기 대시보드</div>
+    <div class="feature-desc">영주시 읍면동별 인구감소 추이와 고령화 현황을 한눈에</div>
+  </a>
+  <a href="/matching" class="feature-card">
+    <div class="feature-icon">🏡</div>
+    <div class="feature-title">귀촌 조건 매칭</div>
+    <div class="feature-desc">의료·빈집·자연환경 조건을 입력하면 최적 읍면을 추천</div>
+  </a>
+  <a href="/tour" class="feature-card">
+    <div class="feature-icon">🗺️</div>
+    <div class="feature-title">관광지 정보</div>
+    <div class="feature-desc">영주시 153개 관광명소를 유형별로 탐색하고 귀촌으로 연결</div>
+  </a>
+  <a href="/chat" class="feature-card">
+    <div class="feature-icon">💬</div>
+    <div class="feature-title">AI 귀촌 상담</div>
+    <div class="feature-desc">Claude AI가 귀촌 지원금·빈집·생활 인프라를 실시간 안내</div>
+  </a>
+</div>
+{% endblock %}

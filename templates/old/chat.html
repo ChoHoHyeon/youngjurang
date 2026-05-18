@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}AI 귀촌 상담{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">AI Settlement Consulting</p>
+    <h1 class="page-title">AI 귀촌 상담</h1>
+    <p class="page-desc">영주시 귀촌 전문 AI가 지원금·빈집·생활 인프라를 실시간으로 안내합니다</p>
+  </div>
+</div>
+
+<div class="container" style="padding-top:1.5rem;padding-bottom:1.5rem;">
+  <div style="max-width:720px;margin:0 auto;">
+
+    <div style="background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:480px;">
+
+      <!-- 채팅 헤더 -->
+      <div class="chat-header">
+        <div class="chat-avatar-lg">🌿</div>
+        <div>
+          <div class="chat-name">영주랑 AI 상담사</div>
+          <div class="chat-status">● 온라인 · Claude AI 기반</div>
+        </div>
+        <div style="margin-left:auto;font-size:11px;color:var(--gray-300);">
+          공공데이터 기반 응답
+        </div>
+      </div>
+
+      <!-- 메시지 영역 -->
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg msg-bot">
+          <div class="msg-avatar">🌿</div>
+          <div class="msg-bubble">
+            안녕하세요! 저는 영주시 귀촌 전문 AI 상담사 <b>영주랑</b>입니다. 😊<br><br>
+            귀촌 지원금, 빈집 정보, 읍면별 생활 인프라 등 궁금하신 점을 무엇이든 물어보세요!
+          </div>
+        </div>
+      </div>
+
+      <!-- 입력 영역 -->
+      <div class="chat-input-wrap">
+        <div class="quick-btns" id="quick-btns">
+          <button class="quick-btn" onclick="sendQuick(this)">귀촌 지원금이 궁금해요</button>
+          <button class="quick-btn" onclick="sendQuick(this)">빈집 매입 절차 알려주세요</button>
+          <button class="quick-btn" onclick="sendQuick(this)">풍기읍 생활 인프라는?</button>
+          <button class="quick-btn" onclick="sendQuick(this)">의료시설 가까운 읍면은?</button>
+          <button class="quick-btn" onclick="sendQuick(this)">귀촌하기 좋은 시기는?</button>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="user-input" type="text"
+            placeholder="귀촌에 대해 궁금한 점을 입력하세요..."
+            onkeydown="if(event.key==='Enter')sendMessage()">
+          <button class="send-btn" id="send-btn" onclick="sendMessage()">→</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let messages = [];
+
+function addMessage(role, content, isTyping=false) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role === 'user' ? 'user' : 'bot'}`;
+
+  if (role === 'user') {
+    div.innerHTML = `<div class="msg-bubble">${escHtml(content)}</div>`;
+  } else if (isTyping) {
+    div.id = 'typing-indicator';
+    div.innerHTML = `
+      <div class="msg-avatar">🌿</div>
+      <div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  } else {
+    div.innerHTML = `
+      <div class="msg-avatar">🌿</div>
+      <div class="msg-bubble">${content.replace(/\n/g,'<br>')}</div>`;
+  }
+
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('quick-btns').style.display = 'none';
+
+  addMessage('user', text);
+  messages.push({ role: 'user', content: text });
+
+  const typingEl = addMessage('bot', '', true);
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages })
+    });
+    const data = await res.json();
+
+    typingEl.remove();
+
+    if (data.error) {
+      addMessage('bot', '⚠️ 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } else {
+      addMessage('bot', data.response);
+      messages.push({ role: 'assistant', content: data.response });
+    }
+  } catch(e) {
+    typingEl.remove();
+    addMessage('bot', '⚠️ 네트워크 오류가 발생했습니다.');
+  }
+
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('user-input').focus();
+}
+
+function sendQuick(btn) {
+  document.getElementById('user-input').value = btn.textContent;
+  sendMessage();
+}
+</script>
+{% endblock %}

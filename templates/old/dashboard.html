@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}인구위기 대시보드{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">Population Crisis Dashboard</p>
+    <h1 class="page-title">인구위기 대시보드</h1>
+    <p class="page-desc">영주시 읍면동별 인구감소 추이 및 고령화 현황 · 2020–2025년 행정안전부 주민등록 통계 기반</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 핵심 지표 -->
+  <div class="metric-grid">
+    <div class="metric-card blue">
+      <div class="metric-label">2025년 총인구</div>
+      <div class="metric-value blue">97,162</div>
+      <div class="metric-sub">명 · 2024년 2월 10만명 붕괴</div>
+    </div>
+    <div class="metric-card red">
+      <div class="metric-label">5년간 인구감소</div>
+      <div class="metric-value red">-5,957</div>
+      <div class="metric-sub">명 (2020→2025)</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">평균 고령화율</div>
+      <div class="metric-value amber">31.2%</div>
+      <div class="metric-sub">초고령사회 기준(20%) 초과</div>
+    </div>
+    <div class="metric-card red">
+      <div class="metric-label">연평균 감소율</div>
+      <div class="metric-value red">-1.1%</div>
+      <div class="metric-sub">매년 지속 감소 추세</div>
+    </div>
+  </div>
+
+  <!-- 인구 추이 + 고령화율 -->
+  <div class="grid-2 section">
+    <div class="card card-lg">
+      <div class="section-title">연도별 총인구 추이</div>
+      <div class="chart-wrap">
+        <canvas id="popTrendChart"></canvas>
+      </div>
+    </div>
+    <div class="card card-lg">
+      <div class="section-title">읍면동별 고령화율 현황</div>
+      <div id="agingBars"></div>
+    </div>
+  </div>
+
+  <!-- 인구 변화율 + 위기지수 -->
+  <div class="grid-2 section">
+    <div class="card card-lg">
+      <div class="section-title">연도별 인구 변화율 (%)</div>
+      <div class="chart-wrap-sm">
+        <canvas id="popChangeChart"></canvas>
+      </div>
+    </div>
+    <div class="card card-lg">
+      <div class="section-title">읍면동별 인구위기 지수</div>
+      <div id="crisisBars"></div>
+    </div>
+  </div>
+
+  <!-- 읍면동별 인구 비교 -->
+  <div class="section">
+    <div class="card card-lg">
+      <div class="section-title">읍면동별 인구 변화 (2020→2025)</div>
+      <div class="chart-wrap">
+        <canvas id="emdCompareChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const POP  = {{ pop_data | safe }};
+const AGING = {{ aging_data | safe }};
+const CRISIS = {{ crisis_data | safe }};
+
+const FONT = "'Pretendard', sans-serif";
+Chart.defaults.font.family = FONT;
+Chart.defaults.color = '#6b6b6b';
+
+// ── 1. 인구 추이 꺾은선
+new Chart(document.getElementById('popTrendChart'), {
+  type: 'line',
+  data: {
+    labels: POP.labels,
+    datasets: [{
+      label: '총인구',
+      data: POP.total_pop,
+      borderColor: '#1d6fa5',
+      backgroundColor: 'rgba(29,111,165,0.08)',
+      borderWidth: 2.5,
+      pointRadius: 5,
+      pointBackgroundColor: '#1d6fa5',
+      fill: true,
+      tension: 0.3,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        min: 90000,
+        ticks: { callback: v => (v/10000).toFixed(0) + '만' }
+      }
+    }
+  }
+});
+
+// ── 2. 인구 변화율 막대
+new Chart(document.getElementById('popChangeChart'), {
+  type: 'bar',
+  data: {
+    labels: POP.labels.slice(1),
+    datasets: [{
+      label: '전년대비(%)',
+      data: POP.yoy_rate.slice(1),
+      backgroundColor: POP.yoy_rate.slice(1).map(v => v < 0 ? 'rgba(192,57,43,0.75)' : 'rgba(45,106,79,0.75)'),
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { ticks: { callback: v => v + '%' } } }
+  }
+});
+
+// ── 3. 고령화율 바
+const agingEl = document.getElementById('agingBars');
+const agingSorted = [...AGING.regions.map((r,i) => ({r, v: AGING.aging_rate[i]}))].sort((a,b) => b.v - a.v);
+agingSorted.forEach(({r, v}) => {
+  const color = v >= 50 ? '#c0392b' : v >= 40 ? '#e07a1f' : v >= 30 ? '#1d6fa5' : '#2d6a4f';
+  agingEl.innerHTML += `
+    <div class="crisis-bar-wrap">
+      <div class="crisis-bar-label">
+        <span class="crisis-bar-name">${r}</span>
+        <span class="crisis-bar-val" style="color:${color}">${v}%</span>
+      </div>
+      <div class="crisis-bar-track">
+        <div class="crisis-bar-fill" style="width:${v}%;background:${color}"></div>
+      </div>
+    </div>`;
+});
+
+// ── 4. 위기지수 바
+const crisisEl = document.getElementById('crisisBars');
+const crisisSorted = [...CRISIS].sort((a,b) => b.위기지수 - a.위기지수);
+crisisSorted.forEach(d => {
+  const color = d.위기지수 >= 80 ? '#c0392b' : d.위기지수 >= 60 ? '#e07a1f' : d.위기지수 >= 40 ? '#1d6fa5' : '#2d6a4f';
+  crisisEl.innerHTML += `
+    <div class="crisis-bar-wrap">
+      <div class="crisis-bar-label">
+        <span class="crisis-bar-name">${d.region}</span>
+        <span class="crisis-bar-val" style="color:${color}">${d.위기지수}</span>
+      </div>
+      <div class="crisis-bar-track">
+        <div class="crisis-bar-fill" style="width:${d.위기지수}%;background:${color}"></div>
+      </div>
+    </div>`;
+});
+
+// ── 5. 읍면동별 인구 비교 (2020 vs 2025)
+fetch('/static/data/crisis.json').then(r=>r.json()).then(crisis => {
+  const sorted = [...crisis].sort((a,b) => b.위기지수 - a.위기지수);
+  new Chart(document.getElementById('emdCompareChart'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(d => d.region),
+      datasets: [
+        { label: '2020년', data: sorted.map(d => d.pop_2020 || 0), backgroundColor: 'rgba(29,111,165,0.4)', borderRadius: 3 },
+        { label: '2025년', data: sorted.map(d => d.pop_2025 || 0), backgroundColor: 'rgba(192,57,43,0.7)', borderRadius: 3 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { ticks: { callback: v => v.toLocaleString() } } }
+    }
+  });
+});
+</script>
+{% endblock %}

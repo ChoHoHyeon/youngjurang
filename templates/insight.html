@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% block title %}영주 인사이트{% endblock %}
+
+{% block content %}
+<section class="insight-hero">
+  <div class="insight-hero-inner">
+    <div>
+      <p class="page-eyebrow">YEONGJU DATA INSIGHT</p>
+      <h1 class="insight-title">영주, 왜 사람들이<br><em>정착을 선택하는가</em></h1>
+      <p class="insight-desc">
+        관광·인구·귀촌·생활 인프라 데이터를 연결하여
+        영주시의 정착 가능성과 귀촌 흐름을 한눈에 분석합니다.
+      </p>
+    </div>
+
+    <div class="insight-summary-card">
+      <div class="summary-label">DATA STORY</div>
+      <div class="summary-title">관광에서 귀촌까지</div>
+      <p>
+        방문 경험, 생활 인프라, 정착 만족도, 읍면동별 여건을 종합해
+        영주형 귀촌 의사결정 흐름을 제시합니다.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="container insight-page">
+
+  <!-- SECTION 1 -->
+  <section class="insight-section">
+    <div class="insight-section-head">
+      <p class="insight-kicker">01 · PEOPLE</p>
+      <h2>누가 영주로 오는가</h2>
+      <p>귀촌인·귀농가구원·귀산촌인의 성별·연령별 데이터를 통해 영주 정착 인구의 특성을 파악합니다.</p>
+    </div>
+
+    <div class="insight-card-grid three">
+      <div class="insight-card">
+        <div class="insight-icon">👥</div>
+        <h3>귀촌인 구조</h3>
+        <p>성별·연령별 귀촌인 분포를 통해 영주로 유입되는 주요 계층을 분석합니다.</p>
+        <span class="insight-chip">귀촌인 성별·연령별</span>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">🌾</div>
+        <h3>귀농 가구 특성</h3>
+        <p>귀농가구원의 연령대와 가족 구성 특성을 비교하여 농촌 정착 가능성을 살펴봅니다.</p>
+        <span class="insight-chip">귀농가구원 분석</span>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">🌲</div>
+        <h3>귀산촌 흐름</h3>
+        <p>산림·자연 친화 정착 수요를 귀산촌인 성별·연령별 데이터로 확인합니다.</p>
+        <span class="insight-chip">귀산촌인 분석</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section class="insight-section">
+    <div class="insight-section-head">
+      <p class="insight-kicker">02 · REASON</p>
+      <h2>왜 영주를 선택하는가</h2>
+      <p>귀촌의 이유, 귀농의 이유, 전입 사유 데이터를 통해 정착 선택의 배경을 스토리로 보여줍니다.</p>
+    </div>
+
+    <div class="reason-layout">
+      <div class="reason-main">
+        <h3>도시를 떠나는 이유는 단순한 이주가 아니라 삶의 방식 변화입니다.</h3>
+        <p>
+          귀촌 데이터는 자연환경, 주거 여건, 정서적 여유, 일자리·창업 가능성 등
+          다양한 이유가 복합적으로 작용하고 있음을 보여줍니다.
+        </p>
+      </div>
+      <div class="reason-list">
+        <div><strong>자연환경</strong><span>조용하고 쾌적한 삶</span></div>
+        <div><strong>주거 여건</strong><span>빈집·농촌주택 활용 가능성</span></div>
+        <div><strong>생활 전환</strong><span>은퇴·가족·정서적 여유</span></div>
+        <div><strong>지역 경험</strong><span>방문·체류 후 정착 관심</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section class="insight-section">
+    <div class="insight-section-head">
+      <p class="insight-kicker">03 · TOUR TO SETTLEMENT</p>
+      <h2>관광에서 정착까지</h2>
+      <p>영주의 관광 방문 경험을 귀촌 관심으로 연결하는 흐름이 이 서비스의 핵심 차별점입니다.</p>
+    </div>
+
+    <div class="flow-wrap">
+      <div class="flow-card">
+        <span>1</span>
+        <h3>관광 방문</h3>
+        <p>소백산·부석사·무섬마을 등 주요 관광자원을 통해 영주를 경험합니다.</p>
+      </div>
+      <div class="flow-line"></div>
+      <div class="flow-card">
+        <span>2</span>
+        <h3>지역 체류</h3>
+        <p>농어촌민박·숙박시설 이용을 통해 생활권을 직접 체감합니다.</p>
+      </div>
+      <div class="flow-line"></div>
+      <div class="flow-card">
+        <span>3</span>
+        <h3>귀촌 관심</h3>
+        <p>방문 경험이 생활 인프라와 연결되며 정착 가능성 검토로 이어집니다.</p>
+      </div>
+      <div class="flow-line"></div>
+      <div class="flow-card">
+        <span>4</span>
+        <h3>정착 선택</h3>
+        <p>데이터 기반 추천과 AI 상담을 통해 적합 읍면동을 선택합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section class="insight-section">
+    <div class="insight-section-head">
+      <p class="insight-kicker">04 · SATISFACTION</p>
+      <h2>실제 살아본 만족도</h2>
+      <p>생활만족도와 귀농 전후 만족도 데이터를 통해 정착 이후의 삶을 검토합니다.</p>
+    </div>
+
+    <div class="satisfaction-grid">
+      <div class="satisfaction-card">
+        <p>Before</p>
+        <h3>도시 생활</h3>
+        <span>생활비 · 주거 부담 · 정서적 피로</span>
+      </div>
+      <div class="satisfaction-arrow">→</div>
+      <div class="satisfaction-card active">
+        <p>After</p>
+        <h3>영주 정착</h3>
+        <span>자연환경 · 여유로운 생활 · 공동체 경험</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section class="insight-section">
+    <div class="insight-section-head">
+      <p class="insight-kicker">05 · LIVING INFRA</p>
+      <h2>정착 인프라 분석</h2>
+      <p>빈집, 공원, 의료, 민박, 관광자원 등 생활 기반 데이터를 읍면동 추천의 근거로 활용합니다.</p>
+    </div>
+
+    <div class="infra-grid">
+      <div class="infra-card">
+        <strong>🏚️ 빈집</strong>
+        <p>주거 가능성과 귀촌 초기 정착 기반을 판단하는 핵심 지표입니다.</p>
+      </div>
+      <div class="infra-card">
+        <strong>🌳 공원·녹지</strong>
+        <p>생활 쾌적성과 자연친화형 귀촌 수요를 설명하는 지표입니다.</p>
+      </div>
+      <div class="infra-card">
+        <strong>🏥 의료 접근성</strong>
+        <p>중장년·은퇴 세대의 정착 안정성을 판단하는 주요 조건입니다.</p>
+      </div>
+      <div class="infra-card">
+        <strong>🏡 민박·숙박</strong>
+        <p>체류 경험과 관광 기반 귀촌 전환 가능성을 보여주는 지표입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section class="insight-section">
+    <div class="insight-section-head">
+      <p class="insight-kicker">06 · LOCAL TYPE</p>
+      <h2>읍면동 유형 분석</h2>
+      <p>읍면동별 데이터 특성을 바탕으로 귀촌 유형을 구분하여 추천 결과의 이해도를 높입니다.</p>
+    </div>
+
+    <div class="type-grid">
+      <div class="type-card">
+        <span>생활인프라형</span>
+        <h3>풍기읍</h3>
+        <p>의료·생활편의·관광 접근성이 균형적인 정착 후보지</p>
+      </div>
+      <div class="type-card">
+        <span>자연치유형</span>
+        <h3>부석면</h3>
+        <p>자연환경과 관광자원이 강한 조용한 정착 후보지</p>
+      </div>
+      <div class="type-card">
+        <span>전통문화형</span>
+        <h3>순흥면</h3>
+        <p>소수서원·선비문화권과 연계된 문화형 귀촌 후보지</p>
+      </div>
+      <div class="type-card">
+        <span>도시정착형</span>
+        <h3>가흥동</h3>
+        <p>도심 생활 편의성과 접근성을 중시하는 정착 후보지</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="insight-cta">
+    <h2>나에게 맞는 영주 정착지는 어디일까요?</h2>
+    <p>인사이트를 바탕으로 개인 조건에 맞는 읍면동을 추천받아보세요.</p>
+    <a href="/matching" class="btn btn-primary btn-lg">귀촌 조건 매칭하기 →</a>
+  </section>
+
+</div>
+{% endblock %}

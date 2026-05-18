@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}관광지 정보{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">Tourism Information</p>
+    <h1 class="page-title">영주시 관광지</h1>
+    <p class="page-desc">소백산·부석사·소수서원·무섬마을 — 영주의 매력을 탐색하고 귀촌까지 연결하세요</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 통계 카드 -->
+  <div class="metric-grid" style="margin-bottom:2rem;">
+    <div class="metric-card green">
+      <div class="metric-label">총 관광지</div>
+      <div class="metric-value green" id="stat-total">–</div>
+      <div class="metric-sub">개소</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-label">관광지/문화시설</div>
+      <div class="metric-value blue" id="stat-spot">–</div>
+      <div class="metric-sub">개소</div>
+    </div>
+    <div class="metric-card amber">
+      <div class="metric-label">음식점/숙박</div>
+      <div class="metric-value amber" id="stat-food">–</div>
+      <div class="metric-sub">개소</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">연간 외지인 방문</div>
+      <div class="metric-value green">950만+</div>
+      <div class="metric-sub">명 (2025년)</div>
+    </div>
+  </div>
+
+  <!-- 필터 -->
+  <div class="filter-tabs" id="type-filters">
+    <button class="filter-tab active" data-type="">전체</button>
+    <button class="filter-tab" data-type="관광지">관광지</button>
+    <button class="filter-tab" data-type="문화시설">문화시설</button>
+    <button class="filter-tab" data-type="음식점">음식점</button>
+    <button class="filter-tab" data-type="숙박">숙박</button>
+    <button class="filter-tab" data-type="레포츠">레포츠</button>
+    <button class="filter-tab" data-type="축제공연행사">축제·행사</button>
+    <button class="filter-tab" data-type="여행코스">여행코스</button>
+  </div>
+
+  <!-- 읍면동 필터 -->
+  <div class="filter-tabs" id="region-filters" style="margin-bottom:2rem;">
+    <button class="filter-tab active" data-region="">전체 지역</button>
+  </div>
+
+  <!-- 관광지 그리드 -->
+  <div class="tour-grid" id="tour-grid">
+    <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gray-300);">
+      <div style="font-size:2rem;">🗺️</div>
+      <p style="margin-top:8px;">불러오는 중...</p>
+    </div>
+  </div>
+
+  <div id="load-more-wrap" style="text-align:center;margin-top:1.5rem;display:none;">
+    <button class="btn btn-outline" onclick="loadMore()">더보기</button>
+  </div>
+
+  <!-- 귀촌 연결 배너 -->
+  <div style="margin-top:3rem;background:linear-gradient(135deg,var(--green-dark),var(--green-mid));border-radius:var(--radius-lg);padding:2.5rem;text-align:center;color:white;">
+    <p style="font-size:13px;font-weight:600;letter-spacing:2px;color:var(--green-light);margin-bottom:10px;">LIVE IN YEONGJU</p>
+    <h2 style="font-family:var(--serif);font-size:1.8rem;font-weight:700;margin-bottom:12px;">영주가 마음에 드셨나요?</h2>
+    <p style="font-size:15px;color:rgba(255,255,255,0.75);margin-bottom:24px;">데이터가 당신에게 맞는 귀촌지를 추천해드립니다</p>
+    <a href="/matching" class="btn btn-lg" style="background:white;color:var(--green-dark);">귀촌지 매칭받기 →</a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const PLACEHOLDERS = {
+  '관광지':    '⛰️', '문화시설': '🏛️', '음식점':   '🍽️',
+  '숙박':      '🏨', '레포츠':   '🚵', '축제공연행사': '🎉',
+  '여행코스':  '🗺️', '쇼핑':     '🛍️', '기타':     '📍',
+};
+
+let allData = [];
+let filtered = [];
+let shown = 0;
+const PAGE = 12;
+let currentType = '';
+let currentRegion = '';
+
+async function loadTours() {
+  const res = await fetch('/api/tour');
+  allData = await res.json();
+
+  // 통계
+  document.getElementById('stat-total').textContent = allData.length;
+  document.getElementById('stat-spot').textContent =
+    allData.filter(d => ['관광지','문화시설'].includes(d['관광유형명'])).length;
+  document.getElementById('stat-food').textContent =
+    allData.filter(d => ['음식점','숙박'].includes(d['관광유형명'])).length;
+
+  // 읍면동 필터 생성
+  const regions = [...new Set(allData.map(d => d['읍면동']).filter(Boolean))].sort();
+  const rf = document.getElementById('region-filters');
+  regions.forEach(r => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-tab';
+    btn.dataset.region = r;
+    btn.textContent = r;
+    btn.onclick = () => setRegion(r, btn);
+    rf.appendChild(btn);
+  });
+
+  applyFilter();
+}
+
+function applyFilter() {
+  filtered = allData.filter(d => {
+    const typeOk = !currentType || d['관광유형명'] === currentType;
+    const regionOk = !currentRegion || d['읍면동'] === currentRegion;
+    return typeOk && regionOk;
+  });
+  shown = 0;
+  document.getElementById('tour-grid').innerHTML = '';
+  renderCards();
+}
+
+function renderCards() {
+  const grid = document.getElementById('tour-grid');
+  const slice = filtered.slice(shown, shown + PAGE);
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gray-300);">
+      <div style="font-size:2rem;">😅</div><p style="margin-top:8px;">해당 조건의 관광지가 없습니다</p></div>`;
+    document.getElementById('load-more-wrap').style.display = 'none';
+    return;
+  }
+
+  slice.forEach(d => {
+    const placeholder = PLACEHOLDERS[d['관광유형명']] || '📍';
+    const hasImg = d['이미지여부'] === 'Y' && d['대표이미지'];
+    const imgHtml = hasImg
+      ? `<img src="${d['대표이미지']}" alt="${d['관광지명']}" onerror="this.parentElement.innerHTML='<div class=tour-img-placeholder>${placeholder}</div>'">`
+      : `<div class="tour-img-placeholder">${placeholder}</div>`;
+
+    const card = document.createElement('div');
+    card.className = 'tour-card';
+    card.innerHTML = `
+      <div class="tour-img-wrap">${imgHtml}</div>
+      <div class="tour-body">
+        <div class="tour-type-badge">${d['관광유형명'] || '기타'}</div>
+        <div class="tour-name">${d['관광지명']}</div>
+        <div class="tour-region">📍 ${d['읍면동'] || ''} ${d['주소'] ? '· ' + d['주소'].replace('경상북도 영주시 ','') : ''}</div>
+      </div>`;
+    card.onclick = () => showDetail(d);
+    grid.appendChild(card);
+  });
+
+  shown += slice.length;
+  const wrap = document.getElementById('load-more-wrap');
+  wrap.style.display = shown < filtered.length ? 'block' : 'none';
+}
+
+function loadMore() { renderCards(); }
+
+function setType(type, btn) {
+  currentType = type;
+  document.querySelectorAll('#type-filters .filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter();
+}
+
+function setRegion(region, btn) {
+  currentRegion = region;
+  document.querySelectorAll('#region-filters .filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter();
+}
+
+function showDetail(d) {
+  alert(`${d['관광지명']}\n\n📍 ${d['주소'] || ''}\n📞 ${d['전화번호'] || '정보 없음'}\n🗂 ${d['관광유형명']}`);
+}
+
+// 필터 탭 이벤트
+document.querySelectorAll('#type-filters .filter-tab').forEach(btn => {
+  btn.onclick = () => setType(btn.dataset.type, btn);
+});
+document.querySelector('#region-filters .filter-tab').onclick = function() {
+  setRegion('', this);
+};
+
+loadTours();
+</script>
+{% endblock %}
