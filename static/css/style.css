@@ -757,7 +757,7 @@ body{
             rgba(255,255,255,0.92),
             rgba(255,255,255,0.84)
         ),
-        url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1800&auto=format&fit=crop') !important;
+        url('/static/hero-bg.jpg') !important;
 
     background-size:cover !important;
     background-position:center !important;

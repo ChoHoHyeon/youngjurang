@@ -2,75 +2,416 @@
 {% block title %}인구위기 대시보드{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div class="page-header-inner">
-    <p class="page-eyebrow">Population Crisis Dashboard</p>
-    <h1 class="page-title">인구위기 대시보드</h1>
-    <p class="page-desc">영주시 읍면동별 인구감소 추이 및 고령화 현황 · 2020–2025년 행정안전부 주민등록 통계 기반</p>
-  </div>
-</div>
+<style>
+.db-page { max-width: 1160px; margin: 0 auto; padding: 2rem 2rem 4rem; }
 
-<div class="container">
+/* 헤더 */
+.db-hero {
+  padding: 3rem 2rem 2.5rem;
+  background: linear-gradient(to bottom, #fff, var(--bg));
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 0;
+}
+.db-hero-inner { max-width: 1160px; margin: 0 auto; }
+.db-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  color: var(--green); text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 1rem;
+}
+.db-eyebrow::before { content:''; width:18px; height:1.5px; background:var(--green); border-radius:2px; }
+.db-hero-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900; letter-spacing: -2px;
+  color: #111827; margin-bottom: .7rem; line-height: 1.15;
+}
+.db-hero-desc { font-size: 14px; color: var(--text-soft); line-height: 1.8; }
 
-  <!-- 핵심 지표 -->
-  <div class="metric-grid">
-    <div class="metric-card blue">
-      <div class="metric-label">2025년 총인구</div>
-      <div class="metric-value blue">97,162</div>
-      <div class="metric-sub">명 · 2024년 2월 10만명 붕괴</div>
-    </div>
-    <div class="metric-card red">
-      <div class="metric-label">5년간 인구감소</div>
-      <div class="metric-value red">-5,957</div>
-      <div class="metric-sub">명 (2020→2025)</div>
-    </div>
-    <div class="metric-card amber">
-      <div class="metric-label">평균 고령화율</div>
-      <div class="metric-value amber">31.2%</div>
-      <div class="metric-sub">초고령사회 기준(20%) 초과</div>
-    </div>
-    <div class="metric-card red">
-      <div class="metric-label">연평균 감소율</div>
-      <div class="metric-value red">-1.1%</div>
-      <div class="metric-sub">매년 지속 감소 추세</div>
-    </div>
-  </div>
+/* 막 구분 */
+.db-act {
+  padding: 2.5rem 0 0;
+}
+.db-act-label {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 1.4rem;
+}
+.db-act-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #111827; color: #fff;
+  font-size: 12px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.db-act-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 1.15rem; font-weight: 900;
+  letter-spacing: -.5px; color: #111827;
+}
+.db-act-sub { font-size: 12.5px; color: var(--text-soft); margin-left: auto; }
 
-  <!-- 인구 추이 + 고령화율 -->
-  <div class="grid-2 section">
-    <div class="card card-lg">
-      <div class="section-title">연도별 총인구 추이</div>
-      <div class="chart-wrap">
-        <canvas id="popTrendChart"></canvas>
+/* 카드 */
+.db-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 1.6rem;
+  box-shadow: 0 4px 16px rgba(15,23,42,.04);
+}
+.db-card-title {
+  font-size: 13px; font-weight: 700; color: #111827;
+  margin-bottom: 1.2rem; letter-spacing: -.2px;
+}
+.db-card-sub { font-size: 11.5px; color: var(--text-soft); margin-left: 6px; font-weight: 400; }
+
+/* 그리드 */
+.db-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1rem; }
+.db-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.db-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+/* 지표 카드 */
+.db-metric {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 20px; padding: 1.4rem 1.6rem;
+  position: relative; overflow: hidden;
+}
+.db-metric::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2.5px;
+}
+.db-metric.blue::before { background: #1d6fa5; }
+.db-metric.red::before { background: #c0392b; }
+.db-metric.amber::before { background: #e07a1f; }
+.db-metric.green::before { background: var(--green); }
+.db-metric-label { font-size: 11.5px; color: var(--text-soft); margin-bottom: .5rem; font-weight: 600; }
+.db-metric-val { font-family: 'Noto Serif KR', serif; font-size: 2rem; font-weight: 900; letter-spacing: -1.5px; line-height: 1; }
+.db-metric-val.blue { color: #1d6fa5; }
+.db-metric-val.red { color: #c0392b; }
+.db-metric-val.amber { color: #e07a1f; }
+.db-metric-val.green { color: var(--green); }
+.db-metric-desc { font-size: 11.5px; color: var(--text-soft); margin-top: .4rem; }
+
+/* 차트 래퍼 */
+.db-chart-h200 { position: relative; height: 200px; }
+.db-chart-h240 { position: relative; height: 240px; }
+.db-chart-h180 { position: relative; height: 180px; }
+
+/* 바 리스트 */
+.db-bar-list { display: flex; flex-direction: column; gap: .5rem; }
+.db-bar-row { display: flex; align-items: center; gap: .6rem; }
+.db-bar-name { font-size: 12px; color: #374151; width: 56px; flex-shrink: 0; font-weight: 600; }
+.db-bar-track { flex: 1; height: 7px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.db-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+.db-bar-val { font-size: 11.5px; font-weight: 700; width: 38px; text-align: right; flex-shrink: 0; }
+
+/* 귀촌 이유 */
+.db-reason-list { display: flex; flex-direction: column; gap: .7rem; }
+.db-reason-row { display: flex; align-items: center; gap: .8rem; }
+.db-reason-rank {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #111827; color: #fff;
+  font-size: 10px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.db-reason-name { font-size: 12.5px; font-weight: 700; color: #374151; flex: 1; }
+.db-reason-track { width: 100px; height: 7px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.db-reason-fill { height: 100%; border-radius: 4px; background: var(--green); }
+.db-reason-pct { font-size: 12px; font-weight: 700; color: var(--green); width: 36px; text-align: right; }
+
+/* 만족도 게이지 */
+.db-gauge-wrap { display: flex; flex-direction: column; align-items: center; padding: .5rem 0; }
+.db-gauge-num {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 3rem; font-weight: 900;
+  color: var(--green); letter-spacing: -2px; line-height: 1;
+}
+.db-gauge-label { font-size: 12px; color: var(--text-soft); margin-top: .3rem; }
+.db-gauge-bar-wrap { width: 100%; margin-top: 1rem; }
+.db-gauge-bar-track { height: 10px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+.db-gauge-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--green), #b8975a); }
+.db-gauge-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-soft); margin-top: .3rem; }
+
+/* 인프라 그리드 */
+.db-infra-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: .8rem; }
+.db-infra-card {
+  background: #f8fafc; border: 1px solid #edf0f3;
+  border-radius: 16px; padding: 1.1rem;
+  transition: all .25s ease;
+}
+.db-infra-card:hover { background: #fff; border-color: rgba(47,107,87,.2); transform: translateY(-2px); }
+.db-infra-icon { font-size: 1.4rem; margin-bottom: .5rem; }
+.db-infra-region { font-size: 13px; font-weight: 900; color: #111827; margin-bottom: .2rem; }
+.db-infra-val { font-size: 11.5px; color: var(--text-soft); }
+
+/* 방문자 하이라이트 */
+.db-visitor-highlight {
+  background: linear-gradient(135deg, #111827, #1e3a2a);
+  border-radius: 20px; padding: 2rem;
+  color: #fff; text-align: center;
+  position: relative; overflow: hidden;
+}
+.db-visitor-highlight::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 80% 40%, rgba(184,151,90,.15), transparent);
+}
+.db-visitor-num {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 3.2rem; font-weight: 900;
+  letter-spacing: -2px; color: #fff; position: relative;
+}
+.db-visitor-label { font-size: 12px; color: rgba(255,255,255,.6); margin-top: .3rem; position: relative; }
+.db-visitor-desc { font-size: 13px; color: rgba(255,255,255,.75); margin-top: .8rem; line-height: 1.7; position: relative; }
+
+/* CTA */
+.db-cta {
+  margin-top: 1rem;
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 20px; padding: 1.6rem 2rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+  box-shadow: 0 2px 0 rgba(47,107,87,.1), 0 8px 24px rgba(15,23,42,.05);
+  position: relative; overflow: hidden;
+}
+.db-cta::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2.5px;
+  background: linear-gradient(90deg, var(--green), #b8975a);
+}
+.db-cta-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 1.2rem; font-weight: 900; letter-spacing: -.5px; color: #111827; margin-bottom: .3rem;
+}
+.db-cta-desc { font-size: 12.5px; color: var(--text-soft); }
+.db-cta-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; background: var(--green); color: #fff;
+  font-size: 13.5px; font-weight: 900; border-radius: 14px;
+  text-decoration: none; white-space: nowrap; flex-shrink: 0;
+  box-shadow: 0 6px 18px rgba(47,107,87,.28);
+  transition: all .25s ease;
+}
+.db-cta-btn:hover { transform: translateY(-2px); background: #255a47; box-shadow: 0 10px 26px rgba(47,107,87,.35); }
+
+/* 구분선 */
+.db-divider { height: 1px; background: var(--line); margin: 2rem 0 0; }
+
+@media(max-width:960px) {
+  .db-grid-4 { grid-template-columns: 1fr 1fr; }
+  .db-grid-2 { grid-template-columns: 1fr; }
+  .db-grid-3 { grid-template-columns: 1fr; }
+  .db-infra-grid { grid-template-columns: 1fr 1fr; }
+  .db-cta { flex-direction: column; align-items: flex-start; }
+}
+</style>
+
+<div class="db-page">
+
+  <!-- ── 1막: 인구위기 ── -->
+  <div class="db-act">
+    <div class="db-act-label">
+      <div class="db-act-num">1</div>
+      <div class="db-act-title">영주시, 인구위기의 현실</div>
+      <div class="db-act-sub">2020–2025 · 행정안전부 주민등록 통계</div>
+    </div>
+
+    <div class="db-grid-4">
+      <div class="db-metric blue">
+        <div class="db-metric-label">2025년 총인구</div>
+        <div class="db-metric-val blue">97,162</div>
+        <div class="db-metric-desc">2024년 2월 10만명 붕괴</div>
+      </div>
+      <div class="db-metric red">
+        <div class="db-metric-label">5년간 인구감소</div>
+        <div class="db-metric-val red">-5,957</div>
+        <div class="db-metric-desc">명 (2020→2025)</div>
+      </div>
+      <div class="db-metric amber">
+        <div class="db-metric-label">평균 고령화율</div>
+        <div class="db-metric-val amber">31.2%</div>
+        <div class="db-metric-desc">초고령사회 기준(20%) 초과</div>
+      </div>
+      <div class="db-metric red">
+        <div class="db-metric-label">최고 위기지수</div>
+        <div class="db-metric-val red">88.1</div>
+        <div class="db-metric-desc">단산면 · 읍면동 중 최고</div>
       </div>
     </div>
-    <div class="card card-lg">
-      <div class="section-title">읍면동별 고령화율 현황</div>
-      <div id="agingBars"></div>
+
+    <div class="db-grid-2">
+      <div class="db-card">
+        <div class="db-card-title">연도별 총인구 추이 <span class="db-card-sub">2020–2025</span></div>
+        <div class="db-chart-h200"><canvas id="popTrendChart"></canvas></div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-title">읍면동별 인구위기 지수 <span class="db-card-sub">감소율+고령화 종합</span></div>
+        <div class="db-chart-h200"><canvas id="crisisChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="db-card">
+      <div class="db-card-title">읍면동별 인구 변화 (2020→2025) <span class="db-card-sub">전체 비교</span></div>
+      <div class="db-chart-h240"><canvas id="emdCompareChart"></canvas></div>
     </div>
   </div>
 
-  <!-- 인구 변화율 + 위기지수 -->
-  <div class="grid-2 section">
-    <div class="card card-lg">
-      <div class="section-title">연도별 인구 변화율 (%)</div>
-      <div class="chart-wrap-sm">
-        <canvas id="popChangeChart"></canvas>
+  <div class="db-divider"></div>
+
+  <!-- ── 2막: 귀촌인은 온다 ── -->
+  <div class="db-act">
+    <div class="db-act-label">
+      <div class="db-act-num" style="background:var(--green)">2</div>
+      <div class="db-act-title">그래도 귀촌인은 영주를 찾는다</div>
+      <div class="db-act-sub">농림축산식품부 귀농귀촌 실태조사</div>
+    </div>
+
+    <div class="db-grid-4" style="margin-bottom:1rem;">
+      <div class="db-metric green">
+        <div class="db-metric-label">2023년 귀촌인</div>
+        <div class="db-metric-val green">1,053</div>
+        <div class="db-metric-desc">명 · 2020년 대비 +14.4%</div>
+      </div>
+      <div class="db-metric green">
+        <div class="db-metric-label">귀농가구원</div>
+        <div class="db-metric-val green">120+</div>
+        <div class="db-metric-desc">명 · 연간 유입</div>
+      </div>
+      <div class="db-metric green">
+        <div class="db-metric-label">귀산촌인</div>
+        <div class="db-metric-val green">176+</div>
+        <div class="db-metric-desc">명 · 연간 유입</div>
+      </div>
+      <div class="db-metric amber">
+        <div class="db-metric-label">귀촌 주요 연령</div>
+        <div class="db-metric-val amber">40대</div>
+        <div class="db-metric-desc">30·40대 합계 35%+</div>
       </div>
     </div>
-    <div class="card card-lg">
-      <div class="section-title">읍면동별 인구위기 지수</div>
-      <div id="crisisBars"></div>
+
+    <div class="db-grid-2">
+      <div class="db-card">
+        <div class="db-card-title">귀촌인 연도별 추이 <span class="db-card-sub">인구감소와 대비</span></div>
+        <div class="db-chart-h200"><canvas id="귀촌추이Chart"></canvas></div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-title">귀촌인 연령별 분포 <span class="db-card-sub">2023년 기준</span></div>
+        <div class="db-chart-h200"><canvas id="귀촌연령Chart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="db-grid-2">
+      <div class="db-card">
+        <div class="db-card-title">귀촌을 선택한 이유 TOP 5 <span class="db-card-sub">1+2+3순위 복수응답</span></div>
+        <div class="db-reason-list" id="reasonList"></div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-title">귀농 후 생활만족도 <span class="db-card-sub">전국 귀농인 조사</span></div>
+        <div class="db-gauge-wrap">
+          <div class="db-gauge-num">72.8%</div>
+          <div class="db-gauge-label">만족 또는 매우 만족 응답 비율 (2023)</div>
+          <div class="db-gauge-bar-wrap">
+            <div class="db-gauge-bar-track">
+              <div class="db-gauge-bar-fill" style="width:72.8%"></div>
+            </div>
+            <div class="db-gauge-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+          </div>
+          <div style="margin-top:1.2rem;display:grid;grid-template-columns:1fr 1fr;gap:.6rem;width:100%;">
+            <div style="background:#f0f7f4;border-radius:12px;padding:.8rem;text-align:center;">
+              <div style="font-size:1.2rem;font-weight:900;color:var(--green);">53.5%</div>
+              <div style="font-size:11px;color:var(--text-soft);margin-top:.2rem;">만족</div>
+            </div>
+            <div style="background:#f0f7f4;border-radius:12px;padding:.8rem;text-align:center;">
+              <div style="font-size:1.2rem;font-weight:900;color:var(--green);">19.3%</div>
+              <div style="font-size:11px;color:var(--text-soft);margin-top:.2rem;">매우 만족</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- 읍면동별 인구 비교 -->
-  <div class="section">
-    <div class="card card-lg">
-      <div class="section-title">읍면동별 인구 변화 (2020→2025)</div>
-      <div class="chart-wrap">
-        <canvas id="emdCompareChart"></canvas>
+  <div class="db-divider"></div>
+
+  <!-- ── 3막: 영주의 가능성 ── -->
+  <div class="db-act">
+    <div class="db-act-label">
+      <div class="db-act-num" style="background:#b8975a">3</div>
+      <div class="db-act-title">950만 방문객, 귀촌으로 이어질 가능성</div>
+      <div class="db-act-sub">한국문화관광연구원 관광자원통계</div>
+    </div>
+
+    <div class="db-grid-3">
+      <div class="db-visitor-highlight">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.5);margin-bottom:.5rem;position:relative;">ANNUAL VISITORS</div>
+        <div class="db-visitor-num">950만+</div>
+        <div class="db-visitor-label">2025년 연간 외지인 방문객</div>
+        <div class="db-visitor-desc">전년 대비 4% 이상 증가 추세.<br>방문 경험이 귀촌 관심으로 이어집니다.</div>
       </div>
+      <div class="db-card" style="grid-column: span 2;">
+        <div class="db-card-title">연도별 외지인 방문자 추이 <span class="db-card-sub">귀촌 전환 잠재인구</span></div>
+        <div class="db-chart-h180"><canvas id="방문자Chart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="db-grid-4" style="margin-top:1rem;">
+      <div class="db-metric blue">
+        <div class="db-metric-label">총 빈집</div>
+        <div class="db-metric-val blue">459</div>
+        <div class="db-metric-desc">개 · 영주시 전체</div>
+      </div>
+      <div class="db-metric green">
+        <div class="db-metric-label">활용가능 빈집</div>
+        <div class="db-metric-val green">280</div>
+        <div class="db-metric-desc">개 · 활용가능률 61%</div>
+      </div>
+      <div class="db-metric amber">
+        <div class="db-metric-label">총 관광지</div>
+        <div class="db-metric-val amber">153</div>
+        <div class="db-metric-desc">개소 · 전 읍면동 분포</div>
+      </div>
+      <div class="db-metric green">
+        <div class="db-metric-label">농어촌 민박</div>
+        <div class="db-metric-val green">94</div>
+        <div class="db-metric-desc">개소 · 체류 경험 기반</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="db-divider"></div>
+
+  <!-- ── 4막: 읍면동별 인프라 ── -->
+  <div class="db-act">
+    <div class="db-act-label">
+      <div class="db-act-num" style="background:#374151">4</div>
+      <div class="db-act-title">읍면동별 귀촌 인프라 현황</div>
+      <div class="db-act-sub">귀촌매칭 알고리즘 기반 데이터</div>
+    </div>
+
+    <div class="db-grid-2">
+      <div class="db-card">
+        <div class="db-card-title">🏚️ 활용가능 빈집 TOP 5</div>
+        <div class="db-bar-list" id="빈집바"></div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-title">🏥 의료기관 TOP 5</div>
+        <div class="db-bar-list" id="의료바"></div>
+      </div>
+    </div>
+
+    <div class="db-grid-2" style="margin-top:1rem;">
+      <div class="db-card">
+        <div class="db-card-title">🗺️ 관광지 TOP 5</div>
+        <div class="db-bar-list" id="관광바"></div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-title">🏠 농어촌 민박 TOP 5</div>
+        <div class="db-bar-list" id="민박바"></div>
+      </div>
+    </div>
+
+    <div class="db-cta">
+      <div>
+        <div class="db-cta-title">데이터로 나에게 맞는 읍면동을 찾아보세요</div>
+        <div class="db-cta-desc">의료·빈집·자연·관광·민박 조건을 직접 조정해 최적 귀촌지를 추천받습니다.</div>
+      </div>
+      <a href="/matching" class="db-cta-btn">귀촌 조건 매칭하기 →</a>
     </div>
   </div>
 
@@ -79,15 +420,14 @@
 
 {% block scripts %}
 <script>
-const POP  = {{ pop_data | safe }};
+const POP   = {{ pop_data | safe }};
 const AGING = {{ aging_data | safe }};
-const CRISIS = {{ crisis_data | safe }};
+const CRISIS= {{ crisis_data | safe }};
 
-const FONT = "'Pretendard', sans-serif";
-Chart.defaults.font.family = FONT;
-Chart.defaults.color = '#6b6b6b';
+Chart.defaults.font.family = "'Pretendard', sans-serif";
+Chart.defaults.color = '#6b7280';
 
-// ── 1. 인구 추이 꺾은선
+// ── 1. 인구추이
 new Chart(document.getElementById('popTrendChart'), {
   type: 'line',
   data: {
@@ -96,97 +436,195 @@ new Chart(document.getElementById('popTrendChart'), {
       label: '총인구',
       data: POP.total_pop,
       borderColor: '#1d6fa5',
-      backgroundColor: 'rgba(29,111,165,0.08)',
-      borderWidth: 2.5,
-      pointRadius: 5,
-      pointBackgroundColor: '#1d6fa5',
-      fill: true,
-      tension: 0.3,
+      backgroundColor: 'rgba(29,111,165,0.07)',
+      borderWidth: 2.5, pointRadius: 5,
+      pointBackgroundColor: '#1d6fa5', fill: true, tension: 0.35,
     }]
   },
   options: {
     responsive: true, maintainAspectRatio: false,
     plugins: { legend: { display: false } },
-    scales: {
-      y: {
-        min: 90000,
-        ticks: { callback: v => (v/10000).toFixed(0) + '만' }
-      }
-    }
+    scales: { y: { min: 90000, ticks: { callback: v => (v/10000).toFixed(0)+'만' } } }
   }
 });
 
-// ── 2. 인구 변화율 막대
-new Chart(document.getElementById('popChangeChart'), {
+// ── 2. 위기지수 가로바차트
+const crisisSorted = [...CRISIS].sort((a,b) => b.위기지수 - a.위기지수);
+new Chart(document.getElementById('crisisChart'), {
   type: 'bar',
   data: {
-    labels: POP.labels.slice(1),
+    labels: crisisSorted.map(d => d.region),
     datasets: [{
-      label: '전년대비(%)',
-      data: POP.yoy_rate.slice(1),
-      backgroundColor: POP.yoy_rate.slice(1).map(v => v < 0 ? 'rgba(192,57,43,0.75)' : 'rgba(45,106,79,0.75)'),
+      data: crisisSorted.map(d => d.위기지수),
+      backgroundColor: crisisSorted.map(d =>
+        d.위기지수 >= 80 ? 'rgba(192,57,43,.8)' :
+        d.위기지수 >= 60 ? 'rgba(224,122,31,.75)' :
+        d.위기지수 >= 40 ? 'rgba(29,111,165,.7)' : 'rgba(47,107,87,.7)'
+      ),
       borderRadius: 4,
     }]
   },
   options: {
+    indexAxis: 'y',
     responsive: true, maintainAspectRatio: false,
     plugins: { legend: { display: false } },
-    scales: { y: { ticks: { callback: v => v + '%' } } }
+    scales: { x: { max: 100, ticks: { callback: v => v } } }
   }
 });
 
-// ── 3. 고령화율 바
-const agingEl = document.getElementById('agingBars');
-const agingSorted = [...AGING.regions.map((r,i) => ({r, v: AGING.aging_rate[i]}))].sort((a,b) => b.v - a.v);
-agingSorted.forEach(({r, v}) => {
-  const color = v >= 50 ? '#c0392b' : v >= 40 ? '#e07a1f' : v >= 30 ? '#1d6fa5' : '#2d6a4f';
-  agingEl.innerHTML += `
-    <div class="crisis-bar-wrap">
-      <div class="crisis-bar-label">
-        <span class="crisis-bar-name">${r}</span>
-        <span class="crisis-bar-val" style="color:${color}">${v}%</span>
-      </div>
-      <div class="crisis-bar-track">
-        <div class="crisis-bar-fill" style="width:${v}%;background:${color}"></div>
-      </div>
-    </div>`;
+// ── 3. 읍면동별 인구 비교
+const emdSorted = [...CRISIS].sort((a,b) => (b.pop_2020||0) - (a.pop_2020||0));
+new Chart(document.getElementById('emdCompareChart'), {
+  type: 'bar',
+  data: {
+    labels: emdSorted.map(d => d.region),
+    datasets: [
+      { label: '2020년', data: emdSorted.map(d => d.pop_2020||0), backgroundColor: 'rgba(29,111,165,0.35)', borderRadius: 3 },
+      { label: '2025년', data: emdSorted.map(d => d.pop_2025||0), backgroundColor: 'rgba(192,57,43,0.7)', borderRadius: 3 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } },
+    scales: { y: { ticks: { callback: v => v.toLocaleString() } } }
+  }
 });
 
-// ── 4. 위기지수 바
-const crisisEl = document.getElementById('crisisBars');
-const crisisSorted = [...CRISIS].sort((a,b) => b.위기지수 - a.위기지수);
-crisisSorted.forEach(d => {
-  const color = d.위기지수 >= 80 ? '#c0392b' : d.위기지수 >= 60 ? '#e07a1f' : d.위기지수 >= 40 ? '#1d6fa5' : '#2d6a4f';
-  crisisEl.innerHTML += `
-    <div class="crisis-bar-wrap">
-      <div class="crisis-bar-label">
-        <span class="crisis-bar-name">${d.region}</span>
-        <span class="crisis-bar-val" style="color:${color}">${d.위기지수}</span>
-      </div>
-      <div class="crisis-bar-track">
-        <div class="crisis-bar-fill" style="width:${d.위기지수}%;background:${color}"></div>
-      </div>
-    </div>`;
-});
-
-// ── 5. 읍면동별 인구 비교 (2020 vs 2025)
-fetch('/static/data/crisis.json').then(r=>r.json()).then(crisis => {
-  const sorted = [...crisis].sort((a,b) => b.위기지수 - a.위기지수);
-  new Chart(document.getElementById('emdCompareChart'), {
-    type: 'bar',
-    data: {
-      labels: sorted.map(d => d.region),
-      datasets: [
-        { label: '2020년', data: sorted.map(d => d.pop_2020 || 0), backgroundColor: 'rgba(29,111,165,0.4)', borderRadius: 3 },
-        { label: '2025년', data: sorted.map(d => d.pop_2025 || 0), backgroundColor: 'rgba(192,57,43,0.7)', borderRadius: 3 },
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'top' } },
-      scales: { y: { ticks: { callback: v => v.toLocaleString() } } }
+// ── 4. 귀촌인 추이
+const 귀촌년도 = [2020,2021,2022,2023];
+const 귀촌인수 = [920,971,1002,1053];
+const 인구감소 = [103119,101942,100894,100199];
+new Chart(document.getElementById('귀촌추이Chart'), {
+  type: 'line',
+  data: {
+    labels: 귀촌년도,
+    datasets: [
+      {
+        label: '귀촌인 수',
+        data: 귀촌인수,
+        borderColor: '#2f6b57',
+        backgroundColor: 'rgba(47,107,87,0.08)',
+        borderWidth: 2.5, pointRadius: 5,
+        pointBackgroundColor: '#2f6b57',
+        fill: true, tension: 0.3,
+        yAxisID: 'y1',
+      },
+      {
+        label: '총인구',
+        data: 인구감소,
+        borderColor: '#c0392b',
+        backgroundColor: 'transparent',
+        borderWidth: 2, pointRadius: 4,
+        pointBackgroundColor: '#c0392b',
+        borderDash: [5,3],
+        tension: 0.3,
+        yAxisID: 'y2',
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { font: { size: 11 }, padding: 10 } } },
+    scales: {
+      y1: { type:'linear', position:'left', ticks: { callback: v => v.toLocaleString()+'명' } },
+      y2: { type:'linear', position:'right', grid: { drawOnChartArea: false }, ticks: { callback: v => (v/10000).toFixed(0)+'만' } }
     }
-  });
+  }
 });
+
+// ── 5. 귀촌인 연령별 도넛
+new Chart(document.getElementById('귀촌연령Chart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['0-29세','30-39세','40-49세','50-59세','60세+'],
+    datasets: [{
+      data: [22.4, 13.5, 21.8, 24.6, 17.7],
+      backgroundColor: ['#2f6b57','#1d6fa5','#b8975a','#e07a1f','#c0392b'],
+      borderWidth: 2, borderColor: '#fff',
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { font: { size: 11 }, padding: 10 } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}%` } }
+    },
+    cutout: '62%',
+  }
+});
+
+// ── 6. 귀촌 이유 TOP5
+const reasons = [
+  { name: '자연환경이 좋아서', pct: 53.1 },
+  { name: '정서적 여유를 위해', pct: 45.0 },
+  { name: '직장 취업을 위해', pct: 35.9 },
+  { name: '가족 근처에 살기 위해', pct: 24.7 },
+  { name: '저렴한 주거비 때문에', pct: 32.8 },
+];
+const reasonEl = document.getElementById('reasonList');
+reasons.forEach((r, i) => {
+  const colors = ['#2f6b57','#2f6b57','#1d6fa5','#e07a1f','#b8975a'];
+  reasonEl.innerHTML += `
+    <div class="db-reason-row">
+      <div class="db-reason-rank" style="background:${colors[i]}">${i+1}</div>
+      <div class="db-reason-name">${r.name}</div>
+      <div class="db-reason-track"><div class="db-reason-fill" style="width:${r.pct}%;background:${colors[i]}"></div></div>
+      <div class="db-reason-pct" style="color:${colors[i]}">${r.pct}%</div>
+    </div>`;
+});
+
+// ── 7. 방문자 추이
+new Chart(document.getElementById('방문자Chart'), {
+  type: 'bar',
+  data: {
+    labels: [2021,2022,2023,2024,2025],
+    datasets: [{
+      label: '외지인 방문자',
+      data: [810, 882, 887, 912, 950],
+      backgroundColor: 'rgba(184,151,90,0.7)',
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { ticks: { callback: v => v+'만' } } }
+  }
+});
+
+// ── 8. 인프라 바 리스트
+function renderBar(elId, data, maxVal, color) {
+  const el = document.getElementById(elId);
+  data.forEach(d => {
+    const pct = Math.round((d.val / maxVal) * 100);
+    el.innerHTML += `
+      <div class="db-bar-row">
+        <div class="db-bar-name">${d.name}</div>
+        <div class="db-bar-track"><div class="db-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <div class="db-bar-val" style="color:${color}">${d.val}</div>
+      </div>`;
+  });
+}
+
+renderBar('빈집바', [
+  {name:'하망동', val:61}, {name:'가흥동', val:61}, {name:'풍기읍', val:57},
+  {name:'영주동', val:40}, {name:'이산면', val:29}
+], 61, '#1d6fa5');
+
+renderBar('의료바', [
+  {name:'영주동', val:56}, {name:'하망동', val:46}, {name:'가흥동', val:21},
+  {name:'풍기읍', val:16}, {name:'휴천동', val:14}
+], 56, '#c0392b');
+
+renderBar('관광바', [
+  {name:'순흥면', val:28}, {name:'영주동', val:26}, {name:'풍기읍', val:26},
+  {name:'부석면', val:18}, {name:'문수면', val:14}
+], 28, '#e07a1f');
+
+renderBar('민박바', [
+  {name:'풍기읍', val:33}, {name:'부석면', val:13}, {name:'단산면', val:9},
+  {name:'순흥면', val:8}, {name:'이산면', val:7}
+], 33, '#2f6b57');
 </script>
 {% endblock %}

@@ -1,0 +1,951 @@
+{% extends 'base.html' %}
+{% block title %}영주 인사이트{% endblock %}
+
+{% block content %}
+<style>
+/* =========================================================
+   YEONGJU INSIGHT — PREMIUM REPORT PAGE
+   더 고급스럽고 깔끔한 리포트형 인사이트 페이지
+========================================================= */
+
+:root{
+  --ir-ink:#101827;
+  --ir-muted:#667085;
+  --ir-soft:#f6f8fa;
+  --ir-line:#e8edf2;
+  --ir-green:#2f6b57;
+  --ir-green2:#7ab69d;
+  --ir-gold:#c7a96c;
+  --ir-white:#fff;
+}
+
+.ir-page{
+  min-height:100vh;
+  color:var(--ir-ink);
+  background:
+    radial-gradient(circle at 88% 4%, rgba(47,107,87,.075), transparent 25%),
+    radial-gradient(circle at 8% 22%, rgba(199,169,108,.05), transparent 22%),
+    linear-gradient(180deg,#ffffff 0%,#f7f9fb 46%,#f2f5f7 100%);
+}
+
+.ir-shell{
+  width:min(1160px, calc(100% - 48px));
+  margin:0 auto;
+}
+
+/* ---------- HERO ---------- */
+.ir-hero{
+  padding:4.6rem 0 2.4rem;
+}
+
+.ir-hero-grid{
+  display:grid;
+  grid-template-columns:1.08fr .78fr;
+  gap:3rem;
+  align-items:center;
+}
+
+.ir-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:1.05rem;
+  color:var(--ir-green);
+  font-size:13px;
+  font-weight:850;
+  letter-spacing:1.5px;
+}
+
+.ir-eyebrow::before{
+  content:'';
+  width:30px;
+  height:2px;
+  border-radius:99px;
+  background:linear-gradient(90deg,var(--ir-green),var(--ir-gold));
+}
+
+.ir-title{
+  font-size:clamp(3.05rem,5.4vw,5rem);
+  line-height:1.05;
+  letter-spacing:-3.4px;
+  font-weight:950;
+  color:var(--ir-ink);
+}
+
+.ir-title em{
+  font-style:normal;
+  color:var(--ir-green);
+}
+
+.ir-desc{
+  margin-top:1.35rem;
+  max-width:610px;
+  color:var(--ir-muted);
+  font-size:1.02rem;
+  line-height:1.88;
+}
+
+.ir-hero-actions{
+  margin-top:1.8rem;
+  display:flex;
+  gap:.75rem;
+  flex-wrap:wrap;
+}
+
+.ir-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:48px;
+  padding:0 22px;
+  border-radius:16px;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:850;
+  transition:.25s ease;
+}
+
+.ir-btn.primary{
+  color:#fff;
+  background:#111827;
+  box-shadow:0 14px 28px rgba(17,24,39,.12);
+}
+
+.ir-btn.light{
+  color:#172033;
+  background:rgba(255,255,255,.76);
+  border:1px solid rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);
+}
+
+.ir-btn:hover{
+  transform:translateY(-3px);
+}
+
+/* hero card */
+.ir-panel{
+  position:relative;
+  border-radius:34px;
+  padding:2rem;
+  background:rgba(255,255,255,.78);
+  border:1px solid rgba(255,255,255,.95);
+  box-shadow:
+    0 18px 55px rgba(15,23,42,.06),
+    0 40px 90px rgba(47,107,87,.045);
+  backdrop-filter:blur(20px);
+  overflow:hidden;
+}
+
+.ir-panel::before{
+  content:'';
+  position:absolute;
+  inset:0 0 auto 0;
+  height:4px;
+  background:linear-gradient(90deg,var(--ir-green),var(--ir-gold));
+}
+
+.ir-panel-label{
+  color:var(--ir-green);
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:2px;
+}
+
+.ir-panel-title{
+  margin-top:.9rem;
+  font-size:1.5rem;
+  line-height:1.38;
+  letter-spacing:-1px;
+  font-weight:950;
+}
+
+.ir-panel-text{
+  margin-top:.85rem;
+  color:var(--ir-muted);
+  font-size:13.5px;
+  line-height:1.78;
+}
+
+.ir-panel-metrics{
+  margin-top:1.4rem;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:.7rem;
+}
+
+.ir-panel-metric{
+  padding:.95rem .8rem;
+  border-radius:18px;
+  background:#f8fafc;
+}
+
+.ir-panel-metric strong{
+  display:block;
+  font-size:1.25rem;
+  letter-spacing:-.7px;
+}
+
+.ir-panel-metric span{
+  display:block;
+  margin-top:.2rem;
+  color:#7b8794;
+  font-size:11.5px;
+}
+
+/* ---------- KPI SUMMARY ---------- */
+.ir-kpis{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1rem;
+  margin:1rem 0 2.2rem;
+}
+
+.ir-kpi{
+  min-height:132px;
+  padding:1.35rem;
+  border-radius:28px;
+  background:rgba(255,255,255,.82);
+  border:1px solid rgba(255,255,255,.95);
+  box-shadow:
+    0 12px 32px rgba(15,23,42,.04),
+    0 22px 52px rgba(15,23,42,.035);
+  backdrop-filter:blur(18px);
+  transition:.28s ease;
+}
+
+.ir-kpi:hover{
+  transform:translateY(-6px);
+  box-shadow:
+    0 18px 45px rgba(15,23,42,.07),
+    0 30px 70px rgba(47,107,87,.055);
+}
+
+.ir-kpi small{
+  color:var(--ir-muted);
+  font-size:12px;
+  font-weight:750;
+}
+
+.ir-kpi b{
+  display:block;
+  margin-top:.7rem;
+  font-size:2rem;
+  line-height:1;
+  letter-spacing:-1.3px;
+  font-weight:950;
+}
+
+.ir-kpi p{
+  margin-top:.7rem;
+  color:#8a95a3;
+  font-size:12px;
+  line-height:1.55;
+}
+
+/* ---------- COMMON SECTIONS ---------- */
+.ir-section{
+  margin-bottom:1.4rem;
+}
+
+.ir-card{
+  padding:1.75rem;
+  border-radius:32px;
+  background:rgba(255,255,255,.82);
+  border:1px solid rgba(255,255,255,.96);
+  box-shadow:
+    0 14px 38px rgba(15,23,42,.045),
+    0 28px 70px rgba(15,23,42,.035);
+  backdrop-filter:blur(20px);
+}
+
+.ir-section-head{
+  display:grid;
+  grid-template-columns:250px 1fr;
+  gap:2rem;
+  align-items:start;
+  margin-bottom:1.45rem;
+}
+
+.ir-section-no{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  color:var(--ir-green);
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:2px;
+}
+
+.ir-section-no::before{
+  content:'';
+  width:24px;
+  height:2px;
+  border-radius:99px;
+  background:var(--ir-green);
+}
+
+.ir-section-title{
+  font-size:1.65rem;
+  line-height:1.2;
+  letter-spacing:-1.15px;
+  font-weight:950;
+}
+
+.ir-section-desc{
+  margin-top:.55rem;
+  max-width:650px;
+  color:var(--ir-muted);
+  font-size:13.5px;
+  line-height:1.75;
+}
+
+/* ---------- PROFILE ---------- */
+.ir-profile{
+  display:grid;
+  grid-template-columns:.95fr 1.05fr;
+  gap:1rem;
+}
+
+.ir-brief{
+  padding:1.45rem;
+  border-radius:26px;
+  background:
+    radial-gradient(circle at top right, rgba(47,107,87,.085), transparent 32%),
+    #f8fafc;
+}
+
+.ir-brief h3{
+  font-size:1.2rem;
+  line-height:1.45;
+  letter-spacing:-.65px;
+  font-weight:950;
+}
+
+.ir-brief p{
+  margin-top:.7rem;
+  color:var(--ir-muted);
+  font-size:13.3px;
+  line-height:1.76;
+}
+
+.ir-bars{
+  margin-top:1.25rem;
+  display:grid;
+  gap:.85rem;
+}
+
+.ir-bar{
+  display:grid;
+  grid-template-columns:74px 1fr 62px;
+  gap:.75rem;
+  align-items:center;
+  font-size:12.5px;
+}
+
+.ir-bar strong{
+  color:#172033;
+}
+
+.ir-track{
+  height:9px;
+  border-radius:999px;
+  background:#e8edf2;
+  overflow:hidden;
+}
+
+.ir-fill{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--ir-green),var(--ir-green2));
+}
+
+.ir-tag{
+  color:var(--ir-green);
+  font-weight:850;
+  text-align:right;
+}
+
+.ir-mini-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:.85rem;
+}
+
+.ir-mini{
+  padding:1.15rem;
+  border-radius:24px;
+  background:#fff;
+  border:1px solid #eef1f4;
+}
+
+.ir-mini-icon{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  background:#f2f6f4;
+  font-size:1.25rem;
+}
+
+.ir-mini h4{
+  margin-top:.85rem;
+  font-size:.98rem;
+  font-weight:900;
+}
+
+.ir-mini p{
+  margin-top:.45rem;
+  color:var(--ir-muted);
+  font-size:12.5px;
+  line-height:1.6;
+}
+
+/* ---------- REASON ---------- */
+.ir-reason{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+}
+
+.ir-highlight{
+  padding:1.55rem;
+  border-radius:26px;
+  background:
+    radial-gradient(circle at top right, rgba(199,169,108,.11), transparent 30%),
+    #f8fafc;
+}
+
+.ir-highlight h3{
+  font-size:1.32rem;
+  line-height:1.45;
+  letter-spacing:-.75px;
+  font-weight:950;
+}
+
+.ir-highlight p{
+  margin-top:.85rem;
+  color:var(--ir-muted);
+  font-size:13.5px;
+  line-height:1.78;
+}
+
+.ir-ranks{
+  display:grid;
+  gap:.65rem;
+}
+
+.ir-rank{
+  display:grid;
+  grid-template-columns:30px 1fr auto;
+  gap:.78rem;
+  align-items:center;
+  padding:.86rem 1rem;
+  border-radius:19px;
+  background:#fff;
+  border:1px solid #eef1f4;
+}
+
+.ir-rank-num{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#eef5f1;
+  color:var(--ir-green);
+  font-size:12px;
+  font-weight:950;
+}
+
+.ir-rank strong{
+  display:block;
+  font-size:13.5px;
+}
+
+.ir-rank span{
+  display:block;
+  color:var(--ir-muted);
+  font-size:12px;
+}
+
+.ir-rank-mark{
+  color:var(--ir-green);
+  font-size:12.5px;
+  font-weight:950;
+}
+
+/* ---------- INFRA ---------- */
+.ir-infra{
+  display:grid;
+  grid-template-columns:.9fr 1.1fr;
+  gap:1rem;
+}
+
+.ir-infra-left{
+  padding:1.45rem;
+  border-radius:26px;
+  background:#f8fafc;
+}
+
+.ir-infra-left h3{
+  font-size:1.25rem;
+  letter-spacing:-.6px;
+  font-weight:950;
+}
+
+.ir-infra-left p{
+  margin-top:.7rem;
+  color:var(--ir-muted);
+  font-size:13.4px;
+  line-height:1.75;
+}
+
+.ir-pills{
+  margin-top:1.15rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.55rem;
+}
+
+.ir-pill{
+  padding:.62rem .86rem;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #edf0f3;
+  color:#344054;
+  font-size:12.3px;
+  font-weight:850;
+}
+
+.ir-types{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:.85rem;
+}
+
+.ir-type{
+  padding:1.15rem;
+  border-radius:23px;
+  background:#fff;
+  border:1px solid #eef1f4;
+  transition:.25s ease;
+}
+
+.ir-type:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 38px rgba(15,23,42,.06);
+}
+
+.ir-type-badge{
+  display:inline-flex;
+  padding:.43rem .68rem;
+  border-radius:999px;
+  background:#eef5f1;
+  color:var(--ir-green);
+  font-size:10.8px;
+  font-weight:950;
+}
+
+.ir-type h4{
+  margin-top:.75rem;
+  font-size:1.1rem;
+  font-weight:950;
+}
+
+.ir-type p{
+  margin-top:.45rem;
+  color:var(--ir-muted);
+  font-size:12.3px;
+  line-height:1.58;
+}
+
+/* ---------- FLOW ---------- */
+.ir-flow{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:.8rem;
+}
+
+.ir-flow-step{
+  min-height:150px;
+  padding:1.2rem;
+  border-radius:23px;
+  background:#fff;
+  border:1px solid #eef1f4;
+}
+
+.ir-flow-step small{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#111827;
+  color:#fff;
+  font-size:12px;
+  font-weight:950;
+}
+
+.ir-flow-step h4{
+  margin-top:.85rem;
+  font-size:.98rem;
+  font-weight:900;
+}
+
+.ir-flow-step p{
+  margin-top:.45rem;
+  color:var(--ir-muted);
+  font-size:12.3px;
+  line-height:1.58;
+}
+
+/* ---------- CTA ---------- */
+.ir-cta{
+  margin:1.8rem 0 0;
+  padding:3rem 2rem;
+  border-radius:34px;
+  text-align:center;
+  color:#fff;
+  background:
+    radial-gradient(circle at top right, rgba(199,169,108,.20), transparent 28%),
+    linear-gradient(135deg,#1d3f30,#2f6b57);
+  box-shadow:0 24px 60px rgba(47,107,87,.17);
+}
+
+.ir-cta h2{
+  font-size:2rem;
+  line-height:1.25;
+  letter-spacing:-1.1px;
+  font-weight:950;
+}
+
+.ir-cta p{
+  margin-top:.7rem;
+  color:rgba(255,255,255,.75);
+  font-size:14px;
+}
+
+.ir-cta a{
+  margin-top:1.45rem;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:980px){
+  .ir-hero-grid,
+  .ir-profile,
+  .ir-reason,
+  .ir-infra{
+    grid-template-columns:1fr;
+  }
+
+  .ir-panel{
+    display:none;
+  }
+
+  .ir-section-head{
+    grid-template-columns:1fr;
+    gap:.65rem;
+  }
+
+  .ir-kpis,
+  .ir-flow{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:680px){
+  .ir-shell{
+    width:min(100% - 28px, 1160px);
+  }
+
+  .ir-hero{
+    padding:3.4rem 0 1.6rem;
+  }
+
+  .ir-title{
+    font-size:2.75rem;
+    letter-spacing:-2px;
+  }
+
+  .ir-kpis,
+  .ir-mini-grid,
+  .ir-types,
+  .ir-flow{
+    grid-template-columns:1fr;
+  }
+
+  .ir-card{
+    padding:1.3rem;
+  }
+}
+</style>
+
+<div class="ir-page">
+  <div class="ir-shell">
+
+    <section class="ir-hero">
+      <div class="ir-hero-grid">
+        <div>
+          <div class="ir-eyebrow">YEONGJU INSIGHT REPORT</div>
+          <h1 class="ir-title">
+            영주 정착 가능성<br>
+            <em>데이터 리포트</em>
+          </h1>
+          <p class="ir-desc">
+            귀촌인·방문자·생활 인프라 데이터를 연결해
+            “누가, 왜, 어디에, 어떻게 정착하는가”를 한 화면에서 분석합니다.
+          </p>
+          <div class="ir-hero-actions">
+            <a href="/matching" class="ir-btn primary">귀촌지 추천받기 →</a>
+            <a href="/tour" class="ir-btn light">관광 데이터 보기</a>
+          </div>
+        </div>
+
+        <aside class="ir-panel">
+          <div class="ir-panel-label">REPORT SUMMARY</div>
+          <div class="ir-panel-title">관광 경험에서 정착 의사결정까지</div>
+          <p class="ir-panel-text">
+            방문 경험, 생활 인프라, 정착 만족도, 읍면동별 여건을 종합해
+            영주형 귀촌 의사결정 흐름을 제시합니다.
+          </p>
+          <div class="ir-panel-metrics">
+            <div class="ir-panel-metric"><strong>20종+</strong><span>분석 데이터</span></div>
+            <div class="ir-panel-metric"><strong>15개</strong><span>읍면동 분석</span></div>
+            <div class="ir-panel-metric"><strong>153개</strong><span>관광자원</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="ir-kpis">
+      <div class="ir-kpi">
+        <small>분석 관점</small>
+        <b>4개</b>
+        <p>사람·이유·인프라·관광 흐름</p>
+      </div>
+      <div class="ir-kpi">
+        <small>영주시 관광자원</small>
+        <b>153</b>
+        <p>관광지·문화시설·음식점·숙박</p>
+      </div>
+      <div class="ir-kpi">
+        <small>연간 외지인 방문</small>
+        <b>950만+</b>
+        <p>정착 전환 잠재 수요</p>
+      </div>
+      <div class="ir-kpi">
+        <small>읍면동 유형화</small>
+        <b>4유형</b>
+        <p>생활·자연·문화·도시정착형</p>
+      </div>
+    </section>
+
+    <section class="ir-section">
+      <div class="ir-card">
+        <div class="ir-section-head">
+          <div class="ir-section-no">01 · PROFILE</div>
+          <div>
+            <h2 class="ir-section-title">정착 인구 프로파일</h2>
+            <p class="ir-section-desc">
+              귀촌인·귀농가구원·귀산촌인의 성별·연령별 데이터를 통합해
+              영주로 유입되는 사람의 특성을 요약합니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="ir-profile">
+          <div class="ir-brief">
+            <h3>영주 정착 수요는 다양한 목적의 생활 전환 수요로 구성됩니다.</h3>
+            <p>귀촌·귀농·귀산촌 데이터를 나누어 보면 정착 목적과 연령대, 생활 방식이 서로 다르게 나타납니다.</p>
+
+            <div class="ir-bars">
+              <div class="ir-bar">
+                <strong>귀촌</strong>
+                <div class="ir-track"><div class="ir-fill" style="width:82%"></div></div>
+                <span class="ir-tag">생활형</span>
+              </div>
+              <div class="ir-bar">
+                <strong>귀농</strong>
+                <div class="ir-track"><div class="ir-fill" style="width:64%"></div></div>
+                <span class="ir-tag">생업형</span>
+              </div>
+              <div class="ir-bar">
+                <strong>귀산촌</strong>
+                <div class="ir-track"><div class="ir-fill" style="width:58%"></div></div>
+                <span class="ir-tag">자연형</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ir-mini-grid">
+            <div class="ir-mini">
+              <div class="ir-mini-icon">👥</div>
+              <h4>귀촌인</h4>
+              <p>일반 생활형 정착 수요를 성별·연령별 구조로 파악합니다.</p>
+            </div>
+            <div class="ir-mini">
+              <div class="ir-mini-icon">🌾</div>
+              <h4>귀농가구</h4>
+              <p>농촌 생업형 정착 가능성을 가구원 특성으로 살펴봅니다.</p>
+            </div>
+            <div class="ir-mini">
+              <div class="ir-mini-icon">🌲</div>
+              <h4>귀산촌</h4>
+              <p>산림·자연 친화 정착 흐름을 별도로 구분합니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ir-section">
+      <div class="ir-card">
+        <div class="ir-section-head">
+          <div class="ir-section-no">02 · MOTIVE</div>
+          <div>
+            <h2 class="ir-section-title">선택 이유와 만족도</h2>
+            <p class="ir-section-desc">
+              귀촌의 이유, 귀농의 이유, 전입 사유, 생활만족도 데이터를 묶어
+              정착 선택의 배경과 정착 이후 체감 변화를 함께 봅니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="ir-reason">
+          <div class="ir-highlight">
+            <h3>도시를 떠나는 이유는 단순한 이주가 아니라 삶의 방식 변화입니다.</h3>
+            <p>
+              자연환경, 주거 여건, 정서적 여유, 지역 경험이 결합되며
+              관광 경험이 정착 관심으로 이어지는 흐름을 만듭니다.
+            </p>
+          </div>
+
+          <div class="ir-ranks">
+            <div class="ir-rank">
+              <div class="ir-rank-num">1</div>
+              <div><strong>자연환경</strong><span>조용하고 쾌적한 생활환경</span></div>
+              <div class="ir-rank-mark">핵심</div>
+            </div>
+            <div class="ir-rank">
+              <div class="ir-rank-num">2</div>
+              <div><strong>주거 여건</strong><span>빈집·농촌주택 활용 가능성</span></div>
+              <div class="ir-rank-mark">중요</div>
+            </div>
+            <div class="ir-rank">
+              <div class="ir-rank-num">3</div>
+              <div><strong>생활 전환</strong><span>은퇴·가족·정서적 여유</span></div>
+              <div class="ir-rank-mark">중요</div>
+            </div>
+            <div class="ir-rank">
+              <div class="ir-rank-num">4</div>
+              <div><strong>지역 경험</strong><span>방문·체류 후 정착 관심</span></div>
+              <div class="ir-rank-mark">연결</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ir-section">
+      <div class="ir-card">
+        <div class="ir-section-head">
+          <div class="ir-section-no">03 · INFRA</div>
+          <div>
+            <h2 class="ir-section-title">지역별 정착 인프라</h2>
+            <p class="ir-section-desc">
+              빈집, 공원, 의료, 민박, 관광자원 데이터를 통합해
+              “실제로 살 수 있는 지역인가”를 판단하는 근거로 활용합니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="ir-infra">
+          <div class="ir-infra-left">
+            <h3>정착 인프라 판단 지표</h3>
+            <p>
+              주거 가능성, 생활 쾌적성, 의료 안정성, 체류 경험 가능성을 함께 보아
+              추천 근거를 구성합니다.
+            </p>
+            <div class="ir-pills">
+              <span class="ir-pill">🏚️ 빈집</span>
+              <span class="ir-pill">🌳 공원·녹지</span>
+              <span class="ir-pill">🏥 의료</span>
+              <span class="ir-pill">🏡 민박</span>
+              <span class="ir-pill">🗺️ 관광</span>
+            </div>
+          </div>
+
+          <div class="ir-types">
+            <div class="ir-type">
+              <span class="ir-type-badge">생활인프라형</span>
+              <h4>풍기읍</h4>
+              <p>의료·생활편의·관광 접근성이 균형적인 정착 후보지</p>
+            </div>
+            <div class="ir-type">
+              <span class="ir-type-badge">자연치유형</span>
+              <h4>부석면</h4>
+              <p>자연환경과 관광자원이 강한 조용한 정착 후보지</p>
+            </div>
+            <div class="ir-type">
+              <span class="ir-type-badge">전통문화형</span>
+              <h4>순흥면</h4>
+              <p>소수서원·선비문화권과 연계된 문화형 귀촌 후보지</p>
+            </div>
+            <div class="ir-type">
+              <span class="ir-type-badge">도시정착형</span>
+              <h4>가흥동</h4>
+              <p>도심 생활 편의성과 접근성을 중시하는 정착 후보지</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ir-section">
+      <div class="ir-card">
+        <div class="ir-section-head">
+          <div class="ir-section-no">04 · FLOW</div>
+          <div>
+            <h2 class="ir-section-title">관광에서 귀촌까지</h2>
+            <p class="ir-section-desc">
+              영주 관광 방문 경험을 생활권 체류와 귀촌 관심으로 연결하는
+              이 서비스의 차별화 흐름입니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="ir-flow">
+          <div class="ir-flow-step">
+            <small>1</small>
+            <h4>관광 방문</h4>
+            <p>소백산·부석사·무섬마을 등 관광자원을 통해 지역을 경험합니다.</p>
+          </div>
+          <div class="ir-flow-step">
+            <small>2</small>
+            <h4>지역 체류</h4>
+            <p>숙박·민박 이용으로 생활권을 직접 체감합니다.</p>
+          </div>
+          <div class="ir-flow-step">
+            <small>3</small>
+            <h4>정착 관심</h4>
+            <p>방문 경험이 생활 인프라 검토로 이어집니다.</p>
+          </div>
+          <div class="ir-flow-step">
+            <small>4</small>
+            <h4>귀촌 선택</h4>
+            <p>데이터 기반 매칭과 AI 상담으로 적합 지역을 선택합니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ir-cta">
+      <h2>나에게 맞는 영주 정착지는 어디일까요?</h2>
+      <p>정착 인사이트를 바탕으로 개인 조건에 맞는 읍면동을 추천받아보세요.</p>
+      <a href="/matching" class="ir-btn light">귀촌 조건 매칭하기 →</a>
+    </section>
+
+  </div>
+</div>
+{% endblock %}
