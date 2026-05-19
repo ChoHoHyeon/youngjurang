@@ -2,22 +2,211 @@
 {% block title %}영주랑 — 관광에서 귀촌까지{% endblock %}
 
 {% block content %}
+<style>
+/* ── 히어로 버튼 숨기기 ── */
+.hero-btns { display: none !important; }
+
+/* ── 히어로 텍스트 하단 여백 줄이기 ── */
+.hero-desc { margin-bottom: 0 !important; }
+
+/* ── 플로팅 카드 3개 배치 ── */
+.hero-right { position: relative; min-height: 380px; }
+
+.recommend-card {
+  top: 5px; left: 10px;
+  width: 280px;
+  padding: 16px 18px;
+  z-index: 3;
+}
+.image-card {
+  right: 10px; top: 30px;
+  width: 280px;
+  animation-delay: .7s;
+  z-index: 5;
+}
+.chart-card {
+  left: 80px; bottom: 40px;
+  width: 280px;
+  padding: 14px 18px;
+  animation-delay: 1.3s;
+  z-index: 4;
+  display: block !important;
+}
+
+/* 플로팅 카드 내부 폰트 축소 */
+.floating-kicker { font-size: 10px !important; letter-spacing: 1px !important; }
+.floating-title { font-size: 22px !important; margin-top: 6px !important; }
+.floating-score span { font-size: 30px !important; }
+.floating-desc { font-size: 11px !important; margin-top: 6px !important; }
+.image-title { font-size: 13px !important; }
+.image-info { padding: 10px 14px 12px !important; }
+
+/* 사진 카드 이미지 → hero_photo.jpg */
+.image-thumb {
+  height: 130px;
+  background:
+    linear-gradient(to top, rgba(15,23,42,.3), transparent 50%),
+    url('/static/images/hero_photo.jpg') !important;
+  background-size: cover !important;
+  background-position: center top !important;
+}
+
+/* 귀촌 트렌드 미니차트 */
+.trend-bars {
+  display: flex; align-items: flex-end; gap: 6px;
+  height: 44px; margin: 8px 0 4px;
+}
+.trend-bar {
+  flex: 1; border-radius: 6px 6px 3px 3px;
+  background: linear-gradient(180deg, #2f6b57, #9ac8b2);
+  box-shadow: 0 4px 10px rgba(47,107,87,.15);
+  position: relative;
+}
+.trend-labels {
+  display: flex; gap: 8px;
+  font-size: 9px; color: #9ca3af;
+  font-family: 'Pretendard', sans-serif;
+}
+.trend-labels span { flex: 1; text-align: center; }
+
+/* ── 스탯 수치 균형 (5,036명 → 5,036 + 명 분리) ── */
+.hero-stat-val { letter-spacing: -1.5px; }
+.hero-stat-unit {
+  font-size: 16px; font-weight: 700;
+  color: #374151; margin-left: 2px;
+  vertical-align: bottom; line-height: 1;
+}
+
+/* ── 피쳐 그리드 5개 ── */
+.feature-grid-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  max-width: 1180px;
+  margin: -60px auto 4rem;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 10;
+}
+@media(max-width:1100px){ .feature-grid-5{ grid-template-columns:repeat(3,1fr); } }
+@media(max-width:720px){  .feature-grid-5{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:480px){  .feature-grid-5{ grid-template-columns:1fr; } }
+
+/* ── 피쳐 카드 ── */
+.fc {
+  text-decoration:none; color:inherit;
+  padding: 1.5rem 1.3rem;
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 20px rgba(15,23,42,.06);
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  display: block;
+}
+.fc:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(15,23,42,.1);
+  border-color: rgba(47,107,87,.2);
+}
+
+/* 아이콘 배경 원형 */
+.fc-icon-wrap {
+  width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; margin-bottom: .9rem;
+  background: #f0f7f4;
+}
+.fc-icon-wrap.amber { background: #fef3c7; }
+.fc-icon-wrap.blue  { background: #dbeafe; }
+.fc-icon-wrap.purple{ background: #ede9fe; }
+.fc-icon-wrap.green { background: #d1fae5; }
+
+.fc-title {
+  font-size: .95rem; font-weight: 800; color: #111827;
+  font-family: 'Pretendard', sans-serif;
+  margin-bottom: .45rem;
+}
+.fc-desc {
+  font-size: 12px; line-height: 1.75; color: #6b7280;
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* ── 귀촌 매칭 카드 강조 ── */
+.fc-highlight {
+  border: 1.5px solid rgba(47,107,87,.3) !important;
+  background: linear-gradient(145deg, #f0f7f4, #ffffff) !important;
+  position: relative; overflow: hidden;
+}
+.fc-highlight::before {
+  content: '핵심 기능';
+  position: absolute; top: 12px; right: 12px;
+  background: #2f6b57; color: #fff;
+  font-size: 9px; font-weight: 800; letter-spacing: 1px;
+  padding: 3px 8px; border-radius: 999px;
+  font-family: 'Pretendard', sans-serif;
+}
+.fc-highlight .fc-title { color: #1a3a2a; }
+.fc-highlight .fc-icon-wrap { background: #c6e8da; }
+.fc-highlight:hover {
+  border-color: rgba(47,107,87,.5) !important;
+  box-shadow: 0 12px 32px rgba(47,107,87,.15) !important;
+}
+</style>
+
 <section class="hero">
   <div class="hero-inner">
-    <p class="hero-eyebrow">공공데이터 기반 귀촌 의사결정 플랫폼</p>
-    <h1 class="hero-title">
-      영주에서<br>
-      <em>새로운 삶</em>을<br>
-      시작하세요
-    </h1>
-    <p class="hero-desc">
-      소백산, 부석사, 무섬마을의 고장 영주시.<br>
-      데이터가 당신에게 딱 맞는 귀촌지를 추천합니다.
-    </p>
-    <div class="hero-btns">
-      <a href="/matching" class="btn btn-primary btn-lg">귀촌지 추천받기 →</a>
-      <a href="/dashboard" class="btn btn-lg" style="background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.3);">인구위기 보기</a>
+    <div class="hero-content">
+      <div class="hero-left">
+        <p class="hero-eyebrow">공공데이터 기반 귀촌 의사결정 플랫폼</p>
+        <h1 class="hero-title">
+          영주에서<br>
+          <em>새로운 삶</em>을<br>
+          시작하세요
+        </h1>
+        <p class="hero-desc">
+          소백산, 부석사, 무섬마을의 고장 영주시.<br>
+          데이터가 당신에게 딱 맞는 귀촌지를 추천합니다.
+        </p>
+      </div>
+
+      <div class="hero-right" aria-hidden="true">
+
+        <!-- 플로팅 카드 1: 귀촌 매칭 데이터 -->
+        <div class="floating-card recommend-card">
+          <div class="floating-kicker">데이터 기반 추천</div>
+          <div class="floating-title">귀촌 매칭</div>
+          <div class="floating-desc">의료·빈집·자연·관광·민박<br>가중치로 최적 읍면동 추천</div>
+        </div>
+
+        <!-- 플로팅 카드 2: 소백산 사진 -->
+        <div class="floating-card image-card">
+          <div class="image-thumb"></div>
+          <div class="image-info">
+            <div class="floating-kicker">영주 소백산</div>
+            <div class="image-title">운해 위의 야생화</div>
+          </div>
+        </div>
+
+        <!-- 플로팅 카드 3: 귀촌 트렌드 -->
+        <div class="floating-card chart-card">
+          <div class="floating-kicker">귀촌 트렌드</div>
+          <div class="trend-bars">
+            <div class="trend-bar" style="height:95%;" title="2020년 920명"></div>
+            <div class="trend-bar" style="height:100%;" title="2021년 971명"></div>
+            <div class="trend-bar" style="height:90%;" title="2022년 875명"></div>
+            <div class="trend-bar" style="height:87%;" title="2023년 840명"></div>
+            <div class="trend-bar" style="height:88%;" title="2024년 853명"></div>
+          </div>
+          <div class="trend-labels">
+            <span>2020</span><span>2021</span><span>2022</span><span>2023</span><span>2024</span>
+          </div>
+          <div class="floating-desc" style="margin-top:8px;">5년간 연평균 <b>891명</b> 귀촌</div>
+        </div>
+
+      </div>
     </div>
+
+    <!-- 스탯 4개 -->
     <div class="hero-stats">
       <div>
         <div class="hero-stat-val">97,162</div>
@@ -28,37 +217,47 @@
         <div class="hero-stat-label">연간 외지인 방문객</div>
       </div>
       <div>
-        <div class="hero-stat-val">30개+</div>
-        <div class="hero-stat-label">활용 공공데이터</div>
+        <div class="hero-stat-val">5,036<span class="hero-stat-unit">명</span></div>
+        <div class="hero-stat-label">최근 5년 귀촌·귀농 누적</div>
       </div>
       <div>
-        <div class="hero-stat-val">15개</div>
-        <div class="hero-stat-label">읍면동 귀촌 분석</div>
+        <div class="hero-stat-val">19<span class="hero-stat-unit">개</span></div>
+        <div class="hero-stat-label">영주시 읍면동 수</div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="feature-grid">
-  <a href="/dashboard" class="feature-card">
-    <div class="feature-icon">📊</div>
-    <div class="feature-title">인구위기 대시보드</div>
-    <div class="feature-desc">영주시 읍면동별 인구감소 추이와 고령화 현황을 한눈에</div>
+<!-- 피쳐 카드 5개 -->
+<div class="feature-grid-5">
+  <a href="/dashboard" class="fc">
+    <div class="fc-icon-wrap amber">📊</div>
+    <div class="fc-title">인구위기 대시보드</div>
+    <div class="fc-desc">읍면동별 인구감소 추이와 고령화 현황을 한눈에</div>
   </a>
-  <a href="/matching" class="feature-card">
-    <div class="feature-icon">🏡</div>
-    <div class="feature-title">귀촌 조건 매칭</div>
-    <div class="feature-desc">의료·빈집·자연환경 조건을 입력하면 최적 읍면을 추천</div>
+
+  <a href="/insight" class="fc">
+    <div class="fc-icon-wrap blue">🔎</div>
+    <div class="fc-title">영주 인사이트</div>
+    <div class="fc-desc">삶의 방식별 귀촌 여정과 지역 특색을 탐색</div>
   </a>
-  <a href="/tour" class="feature-card">
-    <div class="feature-icon">🗺️</div>
-    <div class="feature-title">관광지 정보</div>
-    <div class="feature-desc">영주시 153개 관광명소를 유형별로 탐색하고 귀촌으로 연결</div>
+
+  <a href="/matching" class="fc fc-highlight">
+    <div class="fc-icon-wrap">🏡</div>
+    <div class="fc-title">귀촌 조건 매칭</div>
+    <div class="fc-desc">의료·빈집·자연환경 조건을 입력하면 최적 읍면을 추천</div>
   </a>
-  <a href="/chat" class="feature-card">
-    <div class="feature-icon">💬</div>
-    <div class="feature-title">AI 귀촌 상담</div>
-    <div class="feature-desc">Claude AI가 귀촌 지원금·빈집·생활 인프라를 실시간 안내</div>
+
+  <a href="/tour" class="fc">
+    <div class="fc-icon-wrap green">🗺️</div>
+    <div class="fc-title">관광지 정보</div>
+    <div class="fc-desc">영주시 153개 관광명소를 유형별로 탐색하고 귀촌으로 연결</div>
+  </a>
+
+  <a href="/chat" class="fc">
+    <div class="fc-icon-wrap purple">💬</div>
+    <div class="fc-title">AI 귀촌 상담</div>
+    <div class="fc-desc">Claude AI가 귀촌 지원금·빈집·생활 인프라를 실시간 안내</div>
   </a>
 </div>
 {% endblock %}

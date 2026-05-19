@@ -100,26 +100,30 @@
     <div id="modal-cta" style="
       background:linear-gradient(135deg,#1a3a2a,#2f6b57);
       border-radius:18px;padding:18px 20px;
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
     ">
-      <div>
-        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.55);margin-bottom:4px;">LIVE IN YEONGJU</div>
-        <div id="modal-cta-text" style="
-          font-size:14px;font-weight:700;color:#fff;line-height:1.4;
-        ">이 지역에서 귀촌 매칭받기</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.55);margin-bottom:12px;">LIVE IN YEONGJU</div>
+      <div style="display:flex;gap:10px;">
+        <a href="/matching" style="
+          flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+          background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+          backdrop-filter:blur(8px);border-radius:12px;padding:11px 14px;
+          font-size:13px;font-weight:700;color:#fff;text-decoration:none;
+          transition:background .2s;
+        " onmouseover="this.style.background='rgba(255,255,255,.25)'"
+           onmouseout="this.style.background='rgba(255,255,255,.15)'">
+          📊 귀촌지 매칭받기
+        </a>
+        <a id="modal-chat-btn" href="/chat" style="
+          flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+          background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+          backdrop-filter:blur(8px);border-radius:12px;padding:11px 14px;
+          font-size:13px;font-weight:700;color:#fff;text-decoration:none;
+          transition:background .2s;
+        " onmouseover="this.style.background='rgba(255,255,255,.25)'"
+           onmouseout="this.style.background='rgba(255,255,255,.15)'">
+          💬 AI 상담하기
+        </a>
       </div>
-      <a id="modal-cta-btn" href="/matching" style="
-        flex-shrink:0;
-        background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
-        backdrop-filter:blur(8px);
-        border-radius:12px;padding:10px 16px;
-        font-size:13px;font-weight:700;color:#fff;
-        text-decoration:none;white-space:nowrap;
-        transition:background .2s;
-      " onmouseover="this.style.background='rgba(255,255,255,.25)'"
-         onmouseout="this.style.background='rgba(255,255,255,.15)'">
-        매칭받기 →
-      </a>
     </div>
 
     <!-- 닫기 버튼 -->
@@ -368,16 +372,16 @@ function showDetail(d) {
     hoursRow.style.display = 'none';
   }
 
-  // CTA 텍스트 — 읍면동이 있으면 "풍기읍에서 귀촌 매칭받기"
-  const ctaText = document.getElementById('modal-cta-text');
-  const ctaBtn  = document.getElementById('modal-cta-btn');
+  // AI 상담하기 버튼 — 지역명 자동 연결
+  const chatBtn = document.getElementById('modal-chat-btn');
   const region  = d['읍면동'] || '';
+  const spot    = d['관광지명'] || '';
   if (region) {
-    ctaText.textContent = region + '에서 귀촌 조건 매칭받기';
-    ctaBtn.href = '/matching?region=' + encodeURIComponent(region);
+    chatBtn.href = `/chat?region=${encodeURIComponent(region)}&from=tour&spot=${encodeURIComponent(spot)}`;
+    chatBtn.innerHTML = `💬 ${region} AI 상담`;
   } else {
-    ctaText.textContent = '영주시 귀촌 조건 매칭받기';
-    ctaBtn.href = '/matching';
+    chatBtn.href = '/chat';
+    chatBtn.innerHTML = '💬 AI 상담하기';
   }
 
   // 열기

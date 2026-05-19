@@ -185,11 +185,13 @@
   content:''; position:absolute; top:-50%; right:-15%;
   width:220px; height:220px; border-radius:50%;
   background:rgba(255,255,255,.10);
+  pointer-events:none;
 }
 .m-result-card.top1::after {
   content:''; position:absolute; bottom:-40%; left:-10%;
   width:160px; height:160px; border-radius:50%;
   background:rgba(255,255,255,.07);
+  pointer-events:none;
 }
 .m-result-card.top1 .m-region-name { color:#fff !important; font-size:18px !important; text-shadow:0 1px 4px rgba(0,0,0,.15); }
 .m-result-card.top1 .m-tag { background:rgba(255,255,255,.22) !important; color:#fff !important; }
@@ -517,23 +519,61 @@ function renderResults(data, weights={}) {
       card.className = `m-result-card card-pop${isTop1 ? ' top1' : ''}`;
 
       card.innerHTML = `
-        ${isTop1 ? '<div class="top1-crown">🏆 1위 추천</div>' : ''}
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <!-- 1행: 순위 + 지역명 + 태그풍선 + 점수 -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
           <span class="m-rank ${rankCls[i]}">${i+1}</span>
-          <div style="flex:1;min-width:0;">
-            <div class="m-region-name">${d['읍면동']}</div>
-            <div>${tagsHtml}</div>
+          <div style="font-size:17px;font-weight:900;color:${isTop1?'#fff':'#111827'};
+            font-family:'Noto Serif KR',serif;letter-spacing:-.5px;flex-shrink:0;">
+            ${isTop1 ? '🏆 ' : ''}${d['읍면동']}
           </div>
-          <div style="text-align:right;flex-shrink:0;">
-            <div class="m-score-num score-flash">${Math.round(d['사용자점수'])}</div>
-            <div class="m-score-unit">점</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;flex:1;min-width:0;">
+            ${tagsHtml}
+          </div>
+          <div style="flex-shrink:0;text-align:right;">
+            <span style="font-size:22px;font-weight:900;
+              color:${isTop1?'#fff3e0':'#2f6b57'};
+              font-family:'Pretendard',sans-serif;line-height:1;">
+              ${Math.round(d['사용자점수'])}
+            </span>
+            <span style="font-size:11px;color:${isTop1?'rgba(255,255,255,.6)':'#9ca3af'};margin-left:2px;">점</span>
           </div>
         </div>
-        <div class="m-stat-row">
-          의료 ${d['의료기관수']}개 &middot; 빈집 ${d['활용가능수']}개 &middot; 관광지 ${d['관광지수']}개 &middot; 민박 ${d['민박수']}개
+
+        <!-- 2행: AI 코멘트 -->
+        <div id="${commentId}" style="
+          font-size:13.5px;line-height:1.7;
+          color:${isTop1?'rgba(255,255,255,.92)':'#374151'};
+          font-family:'Pretendard',sans-serif;
+          margin-bottom:10px;
+          padding-left:2px;
+          min-height:20px;
+        ">
+          <span style="color:${isTop1?'rgba(255,255,255,.45)':'#a3c9bc'};font-size:11px;">✦ AI 코멘트 생성 중...</span>
         </div>
-        <div id="${commentId}" class="m-comment">
-          <span class="m-comment-loading">✦ AI 코멘트 생성 중...</span>
+
+        <!-- 3행: 수치 + AI 상담하기 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;
+          padding-top:9px;border-top:1px solid ${isTop1?'rgba(255,255,255,.15)':'#f1f5f9'};">
+          <div style="font-size:11px;color:${isTop1?'rgba(255,255,255,.55)':'#9ca3af'};
+            font-family:'Pretendard',sans-serif;">
+            의료 ${d['의료기관수']} &middot; 빈집 ${d['활용가능수']} &middot; 관광 ${d['관광지수']} &middot; 민박 ${d['민박수']}
+          </div>
+          <a href="/chat?region=${encodeURIComponent(d['읍면동'])}&rank=${i+1}&score=${Math.round(d['사용자점수'])}&top=${encodeURIComponent(reasons[0]||'')}"
+            style="
+              display:inline-flex;align-items:center;gap:4px;
+              padding:5px 12px;border-radius:8px;
+              background:${isTop1?'rgba(255,255,255,.18)':'#f0f7f4'};
+              border:1px solid ${isTop1?'rgba(255,255,255,.3)':'rgba(47,107,87,.2)'};
+              color:${isTop1?'#fff':'#2f6b57'};
+              font-size:12px;font-weight:700;text-decoration:none;
+              font-family:'Pretendard',sans-serif;
+              flex-shrink:0;
+              transition:opacity .15s;
+            "
+            onmouseover="this.style.opacity='.75'"
+            onmouseout="this.style.opacity='1'">
+            💬 AI 상담하기
+          </a>
         </div>`;
 
       container.appendChild(card);
@@ -543,6 +583,7 @@ function renderResults(data, weights={}) {
         method:'POST', headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           region:d['읍면동'], weights,
+          rank: i + 1,
           stats:{
             의료기관수:d['의료기관수'], 활용가능수:d['활용가능수'],
             관광지수:d['관광지수'], 민박수:d['민박수'],

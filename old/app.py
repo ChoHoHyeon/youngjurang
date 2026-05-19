@@ -124,7 +124,6 @@ def api_comment():
     region  = data.get('region', '')
     weights = data.get('weights', {})
     stats   = data.get('stats', {})
-    rank    = int(data.get('rank', 1))  # 순위 (1~5)
 
     w_items    = sorted(weights.items(), key=lambda x: x[1], reverse=True)
     top_factor = w_items[0][0] if w_items else '의료'
@@ -139,22 +138,11 @@ def api_comment():
     민박수 = int(stats.get('민박수', 0))
     점수   = int(stats.get('점수', 0))
 
-    # 순위별 관점 지시
-    rank_guide = {
-        1: f"이 지역이 1위인 이유를 {factor_label} 중심으로 설명하세요. 자신감 있고 확신에 찬 어조로.",
-        2: f"1위와 비교해 이 지역만의 차별점을 설명하세요. '{factor_label} 면에서 고려할 만한 대안'이라는 관점으로.",
-        3: f"어떤 유형의 귀촌 희망자에게 이 지역이 잘 맞는지 설명하세요. '이런 분께 추천'이라는 관점으로.",
-        4: f"이 지역의 숨은 강점 한 가지를 부각하세요. 수치 중심보다 생활감 있는 표현으로.",
-        5: f"이 지역이 5위이지만 특정 조건에서는 최선일 수 있음을 설명하세요. 솔직하되 희망적인 어조로.",
-    }.get(rank, f"{factor_label} 중심으로 이 지역을 추천하세요.")
-
     prompt = (
-        f"당신은 영주시 귀촌 전문 데이터 분석가입니다.\n"
-        f"아래 데이터를 바탕으로 귀촌 희망자에게 2문장으로 설명하세요.\n"
-        f"조건: 100자 이내, 구체적 숫자 1개 이상 포함, 이모지 1개\n"
+        f"당신은 영주시 귀촌 전문 데이터 분석가입니다. "
+        f"아래 데이터를 바탕으로 귀촌 희망자에게 이 지역 추천 이유를 2문장으로 설명하세요.\n"
+        f"조건: 100자 이내, {factor_label} 중심, 구체적 숫자 포함, 이모지 1개\n"
         f"※ 의료기관 5개 미만이면 '의료 접근성이 다소 제한적'이라고 솔직하게 표현하세요.\n\n"
-        f"추천 순위: {rank}위\n"
-        f"관점: {rank_guide}\n"
         f"추천 지역: 경북 영주시 {region}\n"
         f"최우선 관심사: {factor_label}\n"
         f"의료기관: {의료수}개 / 활용가능 빈집: {빈집수}개 / 관광지: {관광수}개 / 민박: {민박수}개\n"
@@ -173,15 +161,26 @@ def api_comment():
         except Exception as e:
             print(f'Claude comment 오류: {e}')
 
-    # Fallback
-    rank_fallback = {
-        1: f'✦ {region}은 {factor_label} 기준 최고 점수 {점수}점으로 가장 균형 잡힌 귀촌지입니다.',
-        2: f'🏡 {region}은 {factor_label} 면에서 1위와 견줄 만한 탄탄한 대안입니다.',
-        3: f'🌿 {factor_label}을 중시하는 분께 {region}이 잘 맞습니다.',
-        4: f'📍 {region}은 수치 이상의 생활감 있는 귀촌지로 주목할 만합니다.',
-        5: f'💡 {region}은 {factor_label}보다 자연환경을 우선한다면 좋은 선택이 될 수 있습니다.',
-    }
-    return jsonify({'comment': rank_fallback.get(rank, f'{region} 귀촌을 검토해보세요.')})
+    # Fallback: 수치 기반 정확한 멘트
+    if top_factor == '의료':
+        if 의료수 >= 20:
+            comment = f'{region}은 의료기관 {의료수}개로 의료 접근성이 매우 우수합니다. 🏥'
+        elif 의료수 >= 5:
+            comment = f'{region}은 의료기관 {의료수}개로 기본 의료 서비스 이용이 가능합니다. 🏥'
+        else:
+            comment = f'{region}은 의료기관이 {의료수}개로 다소 제한적이나 자연환경이 뛰어납니다. 🌿'
+    elif top_factor == '빈집':
+        level = '다양합니다' if 빈집수 >= 30 else '가능합니다'
+        comment = f'{region}은 활용 가능 빈집 {빈집수}개로 초기 정착 주거 선택이 {level}. 🏡'
+    elif top_factor == '관광':
+        comment = f'{region}은 관광지 {관광수}개로 풍부한 문화 인프라를 누릴 수 있습니다. 🗺️'
+    elif top_factor == '민박':
+        feel = '체류 경험이 풍부한' if 민박수 >= 10 else '조용하고 아늑한'
+        comment = f'{region}은 민박 {민박수}개로 {feel} 지역입니다. 🏠'
+    else:
+        comment = f'{region}은 공원·녹지가 풍부해 자연친화적인 귀촌 생활을 누릴 수 있습니다. 🌲'
+
+    return jsonify({'comment': comment})
 
 
 @app.route('/api/tour')

@@ -2,57 +2,309 @@
 {% block title %}AI 귀촌 상담{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div class="page-header-inner">
-    <p class="page-eyebrow">AI Settlement Consulting</p>
-    <h1 class="page-title">AI 귀촌 상담</h1>
-    <p class="page-desc">영주시 귀촌 전문 AI가 지원금·빈집·생활 인프라를 실시간으로 안내합니다</p>
+<style>
+/* ── 페이지 헤더 ── */
+.chat-page-header {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  padding: 1.4rem 2rem 1.2rem;
+}
+.chat-page-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  color: var(--green); font-family: 'Pretendard', sans-serif;
+  margin-bottom: 4px;
+}
+.chat-page-title {
+  font-size: 2rem; font-weight: 900; color: #111827;
+  font-family: 'Noto Serif KR', serif; letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+.chat-page-desc {
+  font-size: 13px; color: var(--text-soft);
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* ── 전체 레이아웃 ── */
+.chat-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.4rem;
+  align-items: start;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.4rem 2rem 2rem;
+}
+@media(max-width: 760px) {
+  .chat-layout { grid-template-columns: 1fr; }
+  .chat-sidebar { display: none; }
+}
+
+/* ── 사이드바 (추천 질문) ── */
+.chat-sidebar {
+  position: sticky; top: 90px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.chat-sidebar-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--text-soft); text-transform: uppercase;
+  font-family: 'Pretendard', sans-serif; margin-bottom: 2px;
+}
+.chat-quick-card {
+  padding: 12px 14px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  font-size: 12.5px; font-weight: 600; color: #374151;
+  font-family: 'Pretendard', sans-serif;
+  cursor: pointer; text-align: left; line-height: 1.4;
+  transition: all .18s ease;
+  box-shadow: var(--shadow-sm);
+}
+.chat-quick-card:hover {
+  border-color: rgba(47,107,87,.4);
+  background: #f0f7f4;
+  color: #1a3a2a;
+  transform: translateX(3px);
+  box-shadow: 0 4px 16px rgba(47,107,87,.1);
+}
+.chat-quick-icon {
+  font-size: 16px; margin-bottom: 4px; display: block;
+}
+
+/* ── 채팅 메인 ── */
+.chat-main {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-md);
+  display: flex; flex-direction: column;
+  height: calc(100vh - 240px);
+  min-height: 520px;
+  overflow: hidden;
+}
+
+/* ── 채팅 헤더 ── */
+.c-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(135deg, #f8faf9, #fff);
+  flex-shrink: 0;
+}
+.c-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, #2f6b57, #1a3a2a);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(47,107,87,.25);
+}
+.c-name {
+  font-size: 15px; font-weight: 700; color: #111827;
+  font-family: 'Pretendard', sans-serif;
+}
+.c-status {
+  font-size: 11px; color: #2f6b57; font-weight: 600;
+  font-family: 'Pretendard', sans-serif; margin-top: 2px;
+}
+.c-badge {
+  margin-left: auto;
+  background: #f0f7f4; border: 1px solid rgba(47,107,87,.2);
+  border-radius: 999px; padding: 4px 10px;
+  font-size: 10px; font-weight: 700; color: #2f6b57;
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* ── 메시지 영역 ── */
+.c-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 16px;
+  scroll-behavior: smooth;
+}
+.c-messages::-webkit-scrollbar { width: 4px; }
+.c-messages::-webkit-scrollbar-track { background: transparent; }
+.c-messages::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+.c-messages::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* ── 메시지 버블 ── */
+.c-msg { display: flex; gap: 10px; align-items: flex-start; }
+.c-msg.user { flex-direction: row-reverse; }
+
+.c-msg-avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #2f6b57, #1a3a2a);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; margin-top: 2px;
+}
+
+.c-bubble {
+  max-width: 72%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 14px; line-height: 1.7;
+  font-family: 'Pretendard', sans-serif;
+  word-break: keep-all;
+}
+.c-msg.bot .c-bubble {
+  background: #f3f6f8;
+  border-bottom-left-radius: 4px;
+  color: #1f2937;
+}
+.c-msg.user .c-bubble {
+  background: linear-gradient(135deg, #2f6b57, #1a3a2a);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 12px rgba(47,107,87,.25);
+}
+
+/* ── 마크다운 렌더링 ── */
+.c-bubble b, .c-bubble strong { font-weight: 700; }
+.c-bubble ul, .c-bubble ol {
+  margin: 8px 0 8px 16px; padding: 0;
+}
+.c-bubble li { margin-bottom: 4px; }
+.c-bubble p { margin-bottom: 8px; }
+.c-bubble p:last-child { margin-bottom: 0; }
+.c-bubble h3 {
+  font-size: 14px; font-weight: 700; margin-bottom: 6px;
+  color: #1a3a2a;
+}
+
+/* ── 타이핑 애니메이션 ── */
+.c-typing {
+  display: flex; gap: 5px; align-items: center;
+  padding: 4px 0;
+}
+.c-typing span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #9ca3af;
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+.c-typing span:nth-child(2) { animation-delay: .2s; }
+.c-typing span:nth-child(3) { animation-delay: .4s; }
+@keyframes typingBounce {
+  0%,60%,100% { transform: translateY(0); opacity:.5; }
+  30%          { transform: translateY(-6px); opacity:1; }
+}
+
+/* ── 입력 영역 ── */
+.c-input-wrap {
+  padding: 14px 16px;
+  border-top: 1px solid var(--line);
+  background: #fafbfc;
+  flex-shrink: 0;
+}
+.c-input-row {
+  display: flex; gap: 10px; align-items: center;
+}
+.c-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  font-size: 14px; font-family: 'Pretendard', sans-serif;
+  color: #1f2937; background: #fff;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.c-input:focus {
+  border-color: #2f6b57;
+  box-shadow: 0 0 0 3px rgba(47,107,87,.1);
+}
+.c-input::placeholder { color: #9ca3af; }
+.c-send {
+  width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+  background: linear-gradient(135deg, #2f6b57, #1a3a2a);
+  border: none; color: #fff; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(47,107,87,.3);
+  transition: transform .15s, box-shadow .15s;
+}
+.c-send:hover { transform: scale(1.08); box-shadow: 0 6px 18px rgba(47,107,87,.4); }
+.c-send:active { transform: scale(.95); }
+.c-send:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ── 메시지 등장 애니메이션 ── */
+@keyframes msgIn {
+  from { opacity:0; transform: translateY(8px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.c-msg { animation: msgIn .25s ease both; }
+</style>
+
+<!-- 헤더 -->
+<div class="chat-page-header">
+  <div style="max-width:1100px;margin:0 auto;">
+    <p class="chat-page-eyebrow">AI Settlement Consulting</p>
+    <h1 class="chat-page-title">AI 귀촌 상담</h1>
+    <p class="chat-page-desc">영주시 귀촌 전문 AI가 지원금·빈집·생활 인프라를 실시간으로 안내합니다</p>
   </div>
 </div>
 
-<div class="container" style="padding-top:1.5rem;padding-bottom:1.5rem;">
-  <div style="max-width:720px;margin:0 auto;">
+<div class="chat-layout">
 
-    <div style="background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 280px);min-height:480px;">
+  <!-- 사이드바: 추천 질문 카드 -->
+  <div class="chat-sidebar">
+    <div class="chat-sidebar-title">추천 질문</div>
+    <button class="chat-quick-card" onclick="sendQuick(this)">
+      <span class="chat-quick-icon">💰</span>귀촌 지원금이 궁금해요
+    </button>
+    <button class="chat-quick-card" onclick="sendQuick(this)">
+      <span class="chat-quick-icon">🏚️</span>빈집 매입 절차 알려주세요
+    </button>
+    <button class="chat-quick-card" onclick="sendQuick(this)">
+      <span class="chat-quick-icon">🏘️</span>풍기읍 생활 인프라는?
+    </button>
+    <button class="chat-quick-card" onclick="sendQuick(this)">
+      <span class="chat-quick-icon">🏥</span>의료시설 가까운 읍면은?
+    </button>
+    <button class="chat-quick-card" onclick="sendQuick(this)">
+      <span class="chat-quick-icon">📅</span>귀촌하기 좋은 시기는?
+    </button>
+    <button class="chat-quick-card" onclick="sendQuick(this)">
+      <span class="chat-quick-icon">⛰️</span>소백산 근처 귀촌지는?
+    </button>
+    <button class="chat-quick-card" onclick="sendQuick(this)">
+      <span class="chat-quick-icon">👨‍👩‍👧</span>가족과 함께 귀촌하려면?
+    </button>
+  </div>
 
-      <!-- 채팅 헤더 -->
-      <div class="chat-header">
-        <div class="chat-avatar-lg">🌿</div>
-        <div>
-          <div class="chat-name">영주랑 AI 상담사</div>
-          <div class="chat-status">● 온라인 · Claude AI 기반</div>
-        </div>
-        <div style="margin-left:auto;font-size:11px;color:var(--gray-300);">
-          공공데이터 기반 응답
+  <!-- 채팅 메인 -->
+  <div class="chat-main">
+
+    <!-- 헤더 -->
+    <div class="c-header">
+      <div class="c-avatar">🌿</div>
+      <div>
+        <div class="c-name">영주랑 AI 상담사</div>
+        <div class="c-status">● 온라인 · Claude AI 기반</div>
+      </div>
+      <div class="c-badge">공공데이터 기반 응답</div>
+    </div>
+
+    <!-- 메시지 영역 -->
+    <div class="c-messages" id="chat-messages">
+      <div class="c-msg bot">
+        <div class="c-msg-avatar">🌿</div>
+        <div class="c-bubble">
+          안녕하세요! 저는 영주시 귀촌 전문 AI 상담사 <b>영주랑</b>입니다. 😊<br><br>
+          귀촌 지원금, 빈집 정보, 읍면별 생활 인프라 등 궁금하신 점을 무엇이든 물어보세요!<br><br>
+          왼쪽 추천 질문을 클릭하거나 직접 입력해주세요.
         </div>
       </div>
+    </div>
 
-      <!-- 메시지 영역 -->
-      <div class="chat-messages" id="chat-messages">
-        <div class="msg msg-bot">
-          <div class="msg-avatar">🌿</div>
-          <div class="msg-bubble">
-            안녕하세요! 저는 영주시 귀촌 전문 AI 상담사 <b>영주랑</b>입니다. 😊<br><br>
-            귀촌 지원금, 빈집 정보, 읍면별 생활 인프라 등 궁금하신 점을 무엇이든 물어보세요!
-          </div>
-        </div>
-      </div>
-
-      <!-- 입력 영역 -->
-      <div class="chat-input-wrap">
-        <div class="quick-btns" id="quick-btns">
-          <button class="quick-btn" onclick="sendQuick(this)">귀촌 지원금이 궁금해요</button>
-          <button class="quick-btn" onclick="sendQuick(this)">빈집 매입 절차 알려주세요</button>
-          <button class="quick-btn" onclick="sendQuick(this)">풍기읍 생활 인프라는?</button>
-          <button class="quick-btn" onclick="sendQuick(this)">의료시설 가까운 읍면은?</button>
-          <button class="quick-btn" onclick="sendQuick(this)">귀촌하기 좋은 시기는?</button>
-        </div>
-        <div class="chat-input-row">
-          <input class="chat-input" id="user-input" type="text"
-            placeholder="귀촌에 대해 궁금한 점을 입력하세요..."
-            onkeydown="if(event.key==='Enter')sendMessage()">
-          <button class="send-btn" id="send-btn" onclick="sendMessage()">→</button>
-        </div>
+    <!-- 입력 영역 -->
+    <div class="c-input-wrap">
+      <div class="c-input-row">
+        <input class="c-input" id="user-input" type="text"
+          placeholder="귀촌에 대해 궁금한 점을 입력하세요..."
+          onkeydown="if(event.key==='Enter')sendMessage()">
+        <button class="c-send" id="send-btn" onclick="sendMessage()">
+          ↑
+        </button>
       </div>
     </div>
 
@@ -64,31 +316,43 @@
 <script>
 let messages = [];
 
+/* 마크다운 → HTML 변환 (심플 버전) */
+function renderMarkdown(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')
+    .replace(/^###\s(.+)$/gm,'<h3>$1</h3>')
+    .replace(/^##\s(.+)$/gm,'<h3>$1</h3>')
+    .replace(/^[-•]\s(.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+    .replace(/\n{2,}/g,'<br><br>')
+    .replace(/\n/g,'<br>');
+}
+
 function addMessage(role, content, isTyping=false) {
   const container = document.getElementById('chat-messages');
   const div = document.createElement('div');
-  div.className = `msg msg-${role === 'user' ? 'user' : 'bot'}`;
+  div.className = `c-msg ${role === 'user' ? 'user' : 'bot'}`;
 
   if (role === 'user') {
-    div.innerHTML = `<div class="msg-bubble">${escHtml(content)}</div>`;
+    const safe = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    div.innerHTML = `<div class="c-bubble">${safe}</div>`;
   } else if (isTyping) {
     div.id = 'typing-indicator';
     div.innerHTML = `
-      <div class="msg-avatar">🌿</div>
-      <div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+      <div class="c-msg-avatar">🌿</div>
+      <div class="c-bubble">
+        <div class="c-typing"><span></span><span></span><span></span></div>
+      </div>`;
   } else {
     div.innerHTML = `
-      <div class="msg-avatar">🌿</div>
-      <div class="msg-bubble">${content.replace(/\n/g,'<br>')}</div>`;
+      <div class="c-msg-avatar">🌿</div>
+      <div class="c-bubble">${renderMarkdown(content)}</div>`;
   }
 
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
   return div;
-}
-
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 async function sendMessage() {
@@ -98,7 +362,6 @@ async function sendMessage() {
 
   input.value = '';
   document.getElementById('send-btn').disabled = true;
-  document.getElementById('quick-btns').style.display = 'none';
 
   addMessage('user', text);
   messages.push({ role: 'user', content: text });
@@ -112,7 +375,6 @@ async function sendMessage() {
       body: JSON.stringify({ messages })
     });
     const data = await res.json();
-
     typingEl.remove();
 
     if (data.error) {
@@ -131,8 +393,59 @@ async function sendMessage() {
 }
 
 function sendQuick(btn) {
-  document.getElementById('user-input').value = btn.textContent;
+  const text = btn.innerText.replace(/^[^\n]+\n/, '').trim();
+  document.getElementById('user-input').value = text;
   sendMessage();
 }
+
+/* ── 매칭/관광 결과에서 넘어온 경우 자동 질문 ── */
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(location.search);
+  const region = params.get('region');
+  const rank   = params.get('rank');
+  const score  = params.get('score');
+  const top    = params.get('top');
+  const from   = params.get('from');   // 'tour' or 'matching'
+  const spot   = params.get('spot');   // 관광지명 (tour에서 올 때)
+
+  if (!region) return;
+
+  // 안내 메시지
+  const infoDiv = document.createElement('div');
+  infoDiv.className = 'c-msg bot';
+
+  let infoHtml = '';
+  let autoQ = '';
+
+  if (from === 'tour' && spot) {
+    // 관광지에서 넘어온 경우
+    infoHtml = `
+      <b>${spot}</b>을 관람하고 오셨군요! 😊<br><br>
+      <b>${region}</b> 귀촌에 대해 궁금하신 점을 안내해드릴게요.`;
+    autoQ = `${region}에 귀촌할 경우 지원금, 생활 인프라, 주거 여건을 알려주세요.`;
+  } else if (rank && score) {
+    // 매칭에서 넘어온 경우
+    infoHtml = `
+      귀촌 매칭 결과에서 오셨군요! 😊<br><br>
+      <b>${region}</b>이 ${rank}위 추천지로 선정되었습니다 (적합도 ${score}점).
+      ${top ? `<b>${top}</b> 항목에서 강점을 보이는 지역이에요.` : ''}<br><br>
+      자세한 귀촌 정보를 바로 안내해드릴게요!`;
+    autoQ = `귀촌 매칭에서 ${region}이 ${rank}위로 추천됐습니다. ${region} 귀촌에 대해 지원금, 생활 인프라, 주거 여건을 자세히 알려주세요.`;
+  } else {
+    // 기타 (region만 있는 경우)
+    infoHtml = `<b>${region}</b> 귀촌에 대해 안내해드릴게요! 😊`;
+    autoQ = `${region} 귀촌에 대해 지원금, 생활 인프라, 주거 여건을 알려주세요.`;
+  }
+
+  infoDiv.innerHTML = `
+    <div class="c-msg-avatar">🌿</div>
+    <div class="c-bubble">${infoHtml}</div>`;
+  document.getElementById('chat-messages').appendChild(infoDiv);
+
+  setTimeout(() => {
+    document.getElementById('user-input').value = autoQ;
+    sendMessage();
+  }, 600);
+});
 </script>
 {% endblock %}

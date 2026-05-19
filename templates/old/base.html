@@ -21,12 +21,19 @@
     <li><a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
       <span class="nav-icon">📊</span>인구위기
     </a></li>
+
+    <li><a href="/insight" class="nav-link {% if request.path == '/insight' %}active{% endif %}">
+      <span class="nav-icon">🔎</span>영주 인사이트
+    </a></li>
+
     <li><a href="/matching" class="nav-link {% if request.path == '/matching' %}active{% endif %}">
       <span class="nav-icon">🏡</span>귀촌매칭
     </a></li>
+
     <li><a href="/tour" class="nav-link {% if request.path == '/tour' %}active{% endif %}">
       <span class="nav-icon">🗺️</span>관광지
     </a></li>
+
     <li><a href="/chat" class="nav-link {% if request.path == '/chat' %}active{% endif %}">
       <span class="nav-icon">💬</span>AI상담
     </a></li>
