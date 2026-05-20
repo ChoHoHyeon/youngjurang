@@ -2,6 +2,288 @@
 {% block title %}귀촌 조건 매칭{% endblock %}
 
 {% block content %}
+<style>
+/* ── 헤더 ── */
+.matching-page .page-header {
+  background:#fff !important;
+  border-bottom:1px solid var(--line) !important;
+  padding:1.6rem 2rem 1.4rem !important;
+}
+.matching-page .page-eyebrow {
+  font-size:11px !important; font-weight:700 !important;
+  letter-spacing:3px !important; color:var(--green) !important;
+}
+.matching-page .page-title {
+  font-size:2rem !important; color:#111827 !important;
+  font-family:'Noto Serif KR',serif !important;
+  letter-spacing:-1px !important;
+}
+.matching-page .page-desc { color:var(--text-soft) !important; font-size:13px !important; }
+
+/* ── 레이아웃 ── */
+.match-layout {
+  display:grid;
+  grid-template-columns: minmax(300px, 30%) 1fr;
+  gap:1.4rem;
+  align-items:start;
+}
+.match-left { display:flex; flex-direction:column; gap:1.2rem; position:sticky; top:90px; }
+@media(max-width:860px){ .match-layout{grid-template-columns:1fr} .match-left{position:static} }
+
+/* ── 패널 공통 ── */
+.m-panel {
+  background:#fff; border-radius:20px;
+  padding:1.4rem 1.6rem;
+  border:1px solid var(--line);
+  box-shadow:var(--shadow-sm);
+}
+.m-panel-title {
+  font-size:14px; font-weight:700; color:#111827;
+  font-family:'Pretendard',sans-serif;
+  margin-bottom:.9rem; letter-spacing:-.3px;
+}
+.m-panel-sub {
+  font-size:12px; color:var(--text-soft); margin-bottom:1rem; line-height:1.5;
+}
+
+/* ── 슬라이더 패널 강조 ── */
+.m-slider-panel {
+  border:1.5px solid rgba(47,107,87,.2) !important;
+  box-shadow:0 4px 20px rgba(47,107,87,.08) !important;
+  position:relative; overflow:hidden;
+}
+.m-slider-panel::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,#2f6b57,#4a9078,#2f6b57);
+  background-size:200% 100%;
+  animation:shimmerBar 2.5s linear infinite;
+}
+@keyframes shimmerBar {
+  0%  { background-position:200% 0; }
+  100%{ background-position:-200% 0; }
+}
+
+/* ── 슬라이더 행 ── */
+.m-slider-row { display:flex; align-items:center; gap:5px; margin-bottom:10px; }
+.m-slider-label {
+  font-size:12px; font-weight:600; color:var(--text); width:56px; flex-shrink:0;
+  font-family:'Pretendard',sans-serif;
+}
+.m-slider-wrap { flex:1; min-width:0; position:relative; }
+.m-slider-wrap input[type=range] {
+  width:100%; height:5px; accent-color:#2f6b57; cursor:pointer;
+  border-radius:3px; display:block;
+}
+/* 슬라이더 변경 시 트랙 반짝임 */
+.m-slider-wrap input[type=range]:active {
+  filter:drop-shadow(0 0 4px rgba(47,107,87,.5));
+}
+.m-slider-val {
+  font-size:13px; font-weight:800; color:#2f6b57;
+  width:24px; text-align:right; flex-shrink:0;
+  font-family:'Pretendard',sans-serif;
+  transition:transform .15s, color .15s;
+}
+.m-slider-val.bump { transform:scale(1.3); color:#059669; }
+
+/* ── 가중치 합계 ── */
+.m-total-box {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:9px 14px; margin:1rem 0;
+  background:#f0f7f4; border-radius:12px;
+  border:1px solid rgba(47,107,87,.15);
+  font-size:13px; font-family:'Pretendard',sans-serif;
+}
+.m-total-val { font-weight:800; font-size:16px; color:#2f6b57; transition:color .2s; }
+
+/* ── 추천 버튼 ── */
+.m-cta-btn {
+  width:100%; padding:14px;
+  background:linear-gradient(135deg,#34d399,#2f6b57 40%,#1a3a2a);
+  background-size:200% 200%;
+  background-position:100% 0;
+  color:#fff; border:none; border-radius:16px;
+  font-size:15px; font-weight:800; cursor:pointer;
+  font-family:'Pretendard',sans-serif; letter-spacing:-.3px;
+  box-shadow:0 6px 20px rgba(47,107,87,.35), inset 0 1px 0 rgba(255,255,255,.15);
+  transition:background-position .4s ease, transform .15s, box-shadow .15s;
+  position:relative; overflow:hidden;
+}
+.m-cta-btn::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.18) 50%,transparent 100%);
+  transform:translateX(-100%);
+  transition:transform .6s ease;
+}
+.m-cta-btn:hover {
+  background-position:0 100%;
+  transform:translateY(-3px);
+  box-shadow:0 12px 32px rgba(47,107,87,.45), inset 0 1px 0 rgba(255,255,255,.2);
+}
+.m-cta-btn:hover::after { transform:translateX(100%); }
+.m-cta-btn:active { transform:translateY(-1px); }
+.m-cta-btn:disabled {
+  background:linear-gradient(135deg,#9ca3af,#6b7280) !important;
+  box-shadow:none !important; transform:none !important; cursor:not-allowed;
+}
+
+/* ── +/- 버튼 ── */
+.m-pm-btn {
+  width:20px; height:20px; border-radius:6px; flex-shrink:0;
+  border:1.5px solid #d1d5db; background:#f9fafb;
+  color:#374151; font-size:13px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; line-height:1; transition:all .15s;
+  padding:0; font-family:'Pretendard',sans-serif;
+}
+.m-pm-btn:hover { background:#e5e7eb; border-color:#9ca3af; transform:scale(1.12); }
+.m-pm-btn:active { transform:scale(.92); }
+
+.m-info-box {
+  margin-top:.9rem; padding:12px 14px;
+  background:#f8faf9; border-radius:12px;
+  border-left:3px solid #2f6b57;
+  font-size:12px; color:#374151; line-height:2;
+  font-family:'Pretendard',sans-serif;
+}
+
+/* ── 결과 카드 팝 애니메이션 ── */
+@keyframes cardPop {
+  0%  { opacity:0; transform:translateY(16px) scale(.96); }
+  65% { transform:translateY(-4px) scale(1.01); }
+  100%{ opacity:1; transform:translateY(0) scale(1); }
+}
+.card-pop { animation:cardPop .4s cubic-bezier(.32,1,.45,1) both; }
+.card-pop:nth-child(1){ animation-delay:.00s; }
+.card-pop:nth-child(2){ animation-delay:.07s; }
+.card-pop:nth-child(3){ animation-delay:.14s; }
+.card-pop:nth-child(4){ animation-delay:.21s; }
+.card-pop:nth-child(5){ animation-delay:.28s; }
+
+/* ── 결과 카드 기본 ── */
+.m-result-card {
+  padding:14px 16px; margin-bottom:10px; border-radius:16px;
+  background:#fff; border:1.5px solid var(--line);
+  box-shadow:var(--shadow-sm);
+  transition:border-color .2s, box-shadow .2s, transform .2s;
+}
+.m-result-card:hover {
+  border-color:rgba(47,107,87,.3);
+  box-shadow:0 8px 24px rgba(47,107,87,.12);
+  transform:translateY(-2px);
+}
+
+/* ── TOP1 특별 카드 ── */
+.m-result-card.top1 {
+  border:none !important;
+  background:linear-gradient(135deg,#f59e0b 0%,#ef6c00 45%,#e53935 100%);
+  box-shadow:0 10px 36px rgba(239,108,0,.35), 0 2px 8px rgba(239,108,0,.2);
+  position:relative; overflow:hidden;
+}
+/* 빛나는 원형 장식 */
+.m-result-card.top1::before {
+  content:''; position:absolute; top:-50%; right:-15%;
+  width:220px; height:220px; border-radius:50%;
+  background:rgba(255,255,255,.10);
+  pointer-events:none;
+}
+.m-result-card.top1::after {
+  content:''; position:absolute; bottom:-40%; left:-10%;
+  width:160px; height:160px; border-radius:50%;
+  background:rgba(255,255,255,.07);
+  pointer-events:none;
+}
+.m-result-card.top1 .m-region-name { color:#fff !important; font-size:18px !important; text-shadow:0 1px 4px rgba(0,0,0,.15); }
+.m-result-card.top1 .m-tag { background:rgba(255,255,255,.22) !important; color:#fff !important; }
+.m-result-card.top1 .m-stat-row { color:rgba(255,255,255,.75) !important; }
+.m-result-card.top1 .m-score-num { color:#fff3e0 !important; font-size:32px !important; text-shadow:0 2px 8px rgba(0,0,0,.15); }
+.m-result-card.top1 .m-score-unit { color:rgba(255,255,255,.6) !important; }
+.m-result-card.top1 .m-comment {
+  background:rgba(255,255,255,.15) !important;
+  border-left-color:rgba(255,255,255,.5) !important;
+  color:#fff !important;
+}
+.m-result-card.top1 .m-comment-loading { color:rgba(255,255,255,.5) !important; }
+.top1-crown {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(255,255,255,.2); border-radius:999px;
+  padding:3px 12px; font-size:11px; font-weight:800; color:#fff;
+  margin-bottom:8px; backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.3);
+  letter-spacing:.5px;
+}
+
+/* ── 랭크 뱃지 ── */
+.m-rank {
+  width:28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:800; flex-shrink:0;
+  font-family:'Pretendard',sans-serif;
+}
+.m-rank-1 { background:rgba(255,255,255,.2); color:#fff; border:1.5px solid rgba(255,255,255,.4); }
+.m-rank-2 { background:#1a3a2a; color:#fff; }
+.m-rank-3 { background:#2f6b57; color:#fff; }
+.m-rank-n { background:#e5e7eb; color:#6b7280; }
+
+/* ── 점수 ── */
+@keyframes scoreFlash {
+  0%  { transform:scale(1); }
+  40% { color:#059669; transform:scale(1.25); }
+  100%{ transform:scale(1); }
+}
+.score-flash { animation:scoreFlash .5s ease both; }
+.m-score-num {
+  font-size:26px; font-weight:900; color:#2f6b57;
+  font-family:'Pretendard',sans-serif; line-height:1;
+}
+.m-score-unit { font-size:11px; color:var(--text-soft); margin-top:1px; }
+
+/* ── 태그 ── */
+.m-tag {
+  display:inline-block; font-size:10px; font-weight:700;
+  padding:2px 8px; border-radius:999px; margin-right:3px; margin-top:3px;
+  font-family:'Pretendard',sans-serif;
+}
+.m-tag-blue  { background:#dbeafe; color:#1d4ed8; }
+.m-tag-green { background:#d1fae5; color:#065f46; }
+.m-tag-amber { background:#fef3c7; color:#92400e; }
+.m-tag-gray  { background:#f3f4f6; color:#6b7280; }
+
+/* ── AI 코멘트 ── */
+.m-comment {
+  margin-top:10px; padding:9px 13px;
+  background:linear-gradient(135deg,#f0f7f4,#e8f5f0);
+  border-radius:10px; border-left:3px solid #2f6b57;
+  font-size:12.5px; color:#1a4a38; line-height:1.7;
+  font-family:'Pretendard',sans-serif; min-height:36px;
+}
+.m-comment-loading { color:#a3c9bc; font-size:11px; }
+
+/* ── 지역명 ── */
+.m-region-name {
+  font-size:15px; font-weight:700; color:#111827;
+  font-family:'Pretendard',sans-serif;
+}
+.m-stat-row {
+  font-size:11px; color:var(--text-soft);
+  padding-left:38px; margin-bottom:4px; margin-top:4px;
+  font-family:'Pretendard',sans-serif;
+}
+
+/* ── 네비 펄스 강조 ── */
+@keyframes navPulse {
+  0%,100%{ box-shadow:0 0 0 0 rgba(47,107,87,.5); }
+  50%    { box-shadow:0 0 0 7px rgba(47,107,87,0); }
+}
+.nav-link-matching {
+  background:linear-gradient(135deg,#2f6b57,#1a3a2a) !important;
+  color:#fff !important; border-radius:999px !important;
+  padding:5px 16px !important; font-weight:700 !important;
+  animation:navPulse 2.2s ease-in-out infinite;
+}
+</style>
+
+<div class="matching-page">
 <div class="page-header">
   <div class="page-header-inner">
     <p class="page-eyebrow">Settlement Matching</p>
@@ -10,94 +292,105 @@
   </div>
 </div>
 
-<div class="container">
-  <div class="grid-2">
+<div class="container" style="padding-top:1.4rem;padding-bottom:2.5rem;">
+  <div class="match-layout">
 
-    <!-- 조건 입력 -->
-    <div class="card card-lg">
-      <div class="section-title">귀촌 조건 중요도 설정</div>
-      <p style="font-size:13px;color:var(--gray-500);margin-bottom:1.5rem;">슬라이더로 각 항목의 중요도를 조정하세요 (합계 100%)</p>
+    <!-- 왼쪽: 슬라이더 + 레이더 -->
+    <div class="match-left">
 
-      <div class="slider-row">
-        <span class="slider-label">🏥 의료</span>
-        <div class="slider-wrap">
-          <input type="range" id="w_의료" min="0" max="100" value="30" oninput="updateSlider()">
+      <!-- 슬라이더 패널 -->
+      <div class="m-panel m-slider-panel">
+        <div class="m-panel-title">귀촌 조건 중요도 설정</div>
+        <p class="m-panel-sub">위쪽부터 조정하세요 — 합계 120% 초과 시 아래 항목이 자동으로 줄어듭니다</p>
+
+        <div class="m-slider-row">
+          <span class="m-slider-label">🏥 의료</span>
+          <button class="m-pm-btn" onclick="stepSlider('의료',-1)">−</button>
+          <div class="m-slider-wrap"><input type="range" id="w_의료" min="0" max="100" value="30" oninput="onSlider('의료',this)"></div>
+          <button class="m-pm-btn" onclick="stepSlider('의료',+1)">+</button>
+          <span class="m-slider-val" id="v_의료">30</span>
         </div>
-        <span class="slider-val" id="v_의료">30</span>
-      </div>
-      <div class="slider-row">
-        <span class="slider-label">🏚️ 빈집</span>
-        <div class="slider-wrap">
-          <input type="range" id="w_빈집" min="0" max="100" value="25" oninput="updateSlider()">
+        <div class="m-slider-row">
+          <span class="m-slider-label">🏚️ 빈집</span>
+          <button class="m-pm-btn" onclick="stepSlider('빈집',-1)">−</button>
+          <div class="m-slider-wrap"><input type="range" id="w_빈집" min="0" max="100" value="25" oninput="onSlider('빈집',this)"></div>
+          <button class="m-pm-btn" onclick="stepSlider('빈집',+1)">+</button>
+          <span class="m-slider-val" id="v_빈집">25</span>
         </div>
-        <span class="slider-val" id="v_빈집">25</span>
-      </div>
-      <div class="slider-row">
-        <span class="slider-label">🌲 자연</span>
-        <div class="slider-wrap">
-          <input type="range" id="w_공원" min="0" max="100" value="15" oninput="updateSlider()">
+        <div class="m-slider-row">
+          <span class="m-slider-label">🌲 자연</span>
+          <button class="m-pm-btn" onclick="stepSlider('공원',-1)">−</button>
+          <div class="m-slider-wrap"><input type="range" id="w_공원" min="0" max="100" value="15" oninput="onSlider('공원',this)"></div>
+          <button class="m-pm-btn" onclick="stepSlider('공원',+1)">+</button>
+          <span class="m-slider-val" id="v_공원">15</span>
         </div>
-        <span class="slider-val" id="v_공원">15</span>
-      </div>
-      <div class="slider-row">
-        <span class="slider-label">🗺️ 관광</span>
-        <div class="slider-wrap">
-          <input type="range" id="w_관광" min="0" max="100" value="15" oninput="updateSlider()">
+        <div class="m-slider-row">
+          <span class="m-slider-label">🗺️ 관광</span>
+          <button class="m-pm-btn" onclick="stepSlider('관광',-1)">−</button>
+          <div class="m-slider-wrap"><input type="range" id="w_관광" min="0" max="100" value="15" oninput="onSlider('관광',this)"></div>
+          <button class="m-pm-btn" onclick="stepSlider('관광',+1)">+</button>
+          <span class="m-slider-val" id="v_관광">15</span>
         </div>
-        <span class="slider-val" id="v_관광">15</span>
-      </div>
-      <div class="slider-row">
-        <span class="slider-label">🏠 민박</span>
-        <div class="slider-wrap">
-          <input type="range" id="w_민박" min="0" max="100" value="15" oninput="updateSlider()">
+        <div class="m-slider-row">
+          <span class="m-slider-label">🏠 민박</span>
+          <button class="m-pm-btn" onclick="stepSlider('민박',-1)">−</button>
+          <div class="m-slider-wrap"><input type="range" id="w_민박" min="0" max="100" value="15" oninput="onSlider('민박',this)"></div>
+          <button class="m-pm-btn" onclick="stepSlider('민박',+1)">+</button>
+          <span class="m-slider-val" id="v_민박">15</span>
         </div>
-        <span class="slider-val" id="v_민박">15</span>
-      </div>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:1.2rem 0 1.5rem;padding:10px 14px;background:var(--gray-100);border-radius:var(--radius-sm);">
-        <span style="font-size:13px;color:var(--gray-500);">가중치 합계</span>
-        <span id="total-weight" style="font-size:15px;font-weight:700;color:var(--green-mid)">100%</span>
-      </div>
+        <div class="m-total-box">
+          <span style="color:var(--text-soft);">가중치 합계</span>
+          <span class="m-total-val" id="total-weight">100%</span>
+        </div>
 
-      <button class="btn btn-primary btn-full btn-lg" onclick="getRecommendation()">
-        최적 귀촌지 추천받기 →
-      </button>
+        <button class="m-cta-btn" id="match-btn" onclick="getRecommendation()">
+          ✦ 최적 귀촌지 추천받기
+        </button>
 
-      <!-- 지표 설명 -->
-      <div style="margin-top:1.5rem;padding:14px;background:var(--green-pale);border-radius:var(--radius-md);">
-        <p style="font-size:12px;font-weight:600;color:var(--green-dark);margin-bottom:8px;">지표 설명</p>
-        <p style="font-size:11px;color:var(--green-dark);line-height:1.8;">
-          🏥 <b>의료</b>: 읍면동 내 병원·의원·약국 수<br>
-          🏚️ <b>빈집</b>: 활용 가능한 빈집 수 및 비율<br>
-          🌲 <b>자연</b>: 공원 수 및 총 녹지 면적<br>
-          🗺️ <b>관광</b>: 관광지 수 (생활 문화 인프라)<br>
-          🏠 <b>민박</b>: 농어촌 민박 수 및 객실 수
-        </p>
-      </div>
-    </div>
-
-    <!-- 추천 결과 -->
-    <div>
-      <div class="card card-lg" style="margin-bottom:1.5rem;">
-        <div class="section-title">추천 읍면동 TOP 5</div>
-        <div id="result-list">
-          <div style="text-align:center;padding:3rem;color:var(--gray-300);">
-            <div style="font-size:3rem;margin-bottom:12px;">🏡</div>
-            <p style="font-size:14px;">조건을 설정하고 추천받기를 눌러주세요</p>
-          </div>
+        <div class="m-info-box">
+          🏥 <b>의료</b>: 병원·의원·약국 수<br>
+          🏚️ <b>빈집</b>: 활용 가능한 빈집 수<br>
+          🌲 <b>자연</b>: 공원 수 및 녹지 면적<br>
+          🗺️ <b>관광</b>: 관광지 수<br>
+          🏠 <b>민박</b>: 농어촌 민박·객실 수
         </div>
       </div>
 
-      <!-- 점수 레이더 차트 -->
-      <div class="card card-lg">
-        <div class="section-title">지표별 점수 비교</div>
-        <div style="position:relative;height:240px;">
+      <!-- 레이더 차트 패널 -->
+      <div class="m-panel">
+        <div class="m-panel-title">지표별 점수 비교</div>
+        <p class="m-panel-sub" style="margin-bottom:.4rem;">상위 3개 읍면동</p>
+        <div style="position:relative;height:230px;">
           <canvas id="radarChart"></canvas>
         </div>
       </div>
+
     </div>
+
+    <!-- 오른쪽: 추천 결과 -->
+    <div class="m-panel" style="min-height:440px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <div class="m-panel-title" style="margin-bottom:0;">추천 읍면동 TOP 5</div>
+        <div id="result-timestamp" style="font-size:11px;color:var(--text-soft);font-family:'Pretendard',sans-serif;"></div>
+      </div>
+      <div id="result-list">
+        <div style="text-align:center;padding:3.5rem 1rem;color:#d1d5db;">
+          <div style="font-size:3rem;margin-bottom:12px;">🏡</div>
+          <p style="font-size:13px;font-family:'Pretendard',sans-serif;">슬라이더를 조정하고<br>추천받기를 눌러주세요</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
+</div>
+
+<script>
+document.querySelectorAll('.nav-link').forEach(el => {
+  if(el.getAttribute('href') === '/matching') el.classList.add('nav-link-matching');
+});
+</script>
 {% endblock %}
 
 {% block scripts %}
@@ -106,23 +399,66 @@ const SCORE_DATA = {{ score_data | safe }};
 let radarChart = null;
 
 const TAGS = {
-  '의료 우수': 'tag-blue',
-  '빈집 풍부': 'tag-amber',
-  '녹지 우수': 'tag-green',
-  '관광 풍부': 'tag-green',
-  '숙박 편리': 'tag-amber',
-  '균형적':    'tag-gray',
+  '의료 우수':'m-tag-blue', '빈집 풍부':'m-tag-amber',
+  '녹지 우수':'m-tag-green', '관광 풍부':'m-tag-green',
+  '숙박 편리':'m-tag-amber', '균형적':'m-tag-gray',
 };
 
-function updateSlider() {
-  ['의료','빈집','공원','관광','민박'].forEach(k => {
-    document.getElementById(`v_${k}`).textContent = document.getElementById(`w_${k}`).value;
-  });
-  const total = ['의료','빈집','공원','관광','민박']
-    .reduce((s,k) => s + parseInt(document.getElementById(`w_${k}`).value), 0);
-  const el = document.getElementById('total-weight');
-  el.textContent = total + '%';
-  el.style.color = Math.abs(total - 100) <= 5 ? 'var(--green-mid)' : 'var(--red)';
+/* +/- 버튼 — 1씩 조정 후 onSlider 위임 */
+const KEYS = ['의료','빈집','공원','관광','민박'];
+const MAX_TOTAL = 120;
+
+function stepSlider(key, delta) {
+  const el = document.getElementById(`w_${key}`);
+  const next = Math.min(100, Math.max(0, parseInt(el.value) + delta));
+  el.value = next;
+  onSlider(key, el);
+}
+
+/* 슬라이더 변경 — 합계 120% 초과 시 아래쪽 바 자동 감소 */
+function onSlider(changedKey, el) {
+  const changedIdx = KEYS.indexOf(changedKey);
+
+  // 현재 전체 합계 계산
+  let total = KEYS.reduce((s,k) => s + parseInt(document.getElementById(`w_${k}`).value), 0);
+
+  // 120 초과 시 → 변경된 슬라이더 아래쪽 항목들을 순서대로 감소
+  if (total > MAX_TOTAL) {
+    let excess = total - MAX_TOTAL;
+    // 아래쪽 항목부터 (changedIdx+1 이후) 순서대로 깎기
+    for (let i = KEYS.length - 1; i > changedIdx && excess > 0; i--) {
+      const targetEl = document.getElementById(`w_${KEYS[i]}`);
+      const cur = parseInt(targetEl.value);
+      const cut = Math.min(cur, excess);
+      targetEl.value = cur - cut;
+      document.getElementById(`v_${KEYS[i]}`).textContent = cur - cut;
+      excess -= cut;
+    }
+    // 그래도 초과면 변경된 슬라이더 자체를 제한
+    if (excess > 0) {
+      el.value = parseInt(el.value) - excess;
+    }
+  }
+
+  // 값 표시 + bump 애니메이션
+  const valEl = document.getElementById(`v_${changedKey}`);
+  valEl.textContent = el.value;
+  valEl.classList.remove('bump');
+  void valEl.offsetWidth;
+  valEl.classList.add('bump');
+  setTimeout(() => valEl.classList.remove('bump'), 200);
+
+  // 합계 표시 업데이트
+  const newTotal = KEYS.reduce((s,k) => s + parseInt(document.getElementById(`w_${k}`).value), 0);
+  const tw = document.getElementById('total-weight');
+  tw.textContent = newTotal + '%';
+  if (newTotal < 95) {
+    tw.style.color = '#374151';      // 진한 회색: 95% 미만
+  } else if (newTotal <= 105) {
+    tw.style.color = '#d97706';      // 주황: 95~105%
+  } else {
+    tw.style.color = '#dc2626';      // 빨강: 106% 이상
+  }
 }
 
 async function getRecommendation() {
@@ -131,80 +467,189 @@ async function getRecommendation() {
     weights[k] = parseInt(document.getElementById(`w_${k}`).value);
   });
 
-  const res = await fetch('/api/match', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(weights)
-  });
-  const data = await res.json();
-  renderResults(data);
+  const btn = document.getElementById('match-btn');
+  btn.disabled = true;
+  btn.textContent = '분석 중...';
+
+  try {
+    const res = await fetch('/api/match', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(weights)
+    });
+    const data = await res.json();
+
+    const now = new Date();
+    document.getElementById('result-timestamp').textContent =
+      `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} 업데이트`;
+
+    renderResults(data, weights);
+  } catch(e) { console.error(e); }
+
+  btn.disabled = false;
+  btn.innerHTML = '✦ 최적 귀촌지 추천받기';
 }
 
-function renderResults(data) {
-  const el = document.getElementById('result-list');
-  el.innerHTML = '';
+function renderResults(data, weights={}) {
+  const container = document.getElementById('result-list');
+  container.style.transition = 'opacity .15s, transform .15s';
+  container.style.opacity = '0';
+  container.style.transform = 'translateY(8px)';
 
-  const rankClasses = ['rank-1','rank-2','rank-3','rank-n','rank-n'];
+  setTimeout(() => {
+    container.innerHTML = '';
+    const rankCls = ['m-rank-1','m-rank-2','m-rank-3','m-rank-n','m-rank-n'];
 
-  data.forEach((d, i) => {
-    // 추천 이유 생성
-    const reasons = [];
-    const full = SCORE_DATA.find(s => s['읍면동'] === d['읍면동']) || {};
-    if ((full['의료_score']||0) >= 70) reasons.push('의료 우수');
-    if ((full['빈집_score']||0) >= 60) reasons.push('빈집 풍부');
-    if ((full['공원_score']||0) >= 60) reasons.push('녹지 우수');
-    if ((full['관광_score']||0) >= 60) reasons.push('관광 풍부');
-    if ((full['민박_score']||0) >= 60) reasons.push('숙박 편리');
-    if (!reasons.length) reasons.push('균형적');
+    data.forEach((d, i) => {
+      const reasons = [];
+      const full = SCORE_DATA.find(s => s['읍면동'] === d['읍면동']) || {};
+      if ((full['의료_score']||0) >= 70) reasons.push('의료 우수');
+      if ((full['빈집_score']||0) >= 60) reasons.push('빈집 풍부');
+      if ((full['공원_score']||0) >= 60) reasons.push('녹지 우수');
+      if ((full['관광_score']||0) >= 60) reasons.push('관광 풍부');
+      if ((full['민박_score']||0) >= 60) reasons.push('숙박 편리');
+      if (!reasons.length) reasons.push('균형적');
 
-    const tagsHtml = reasons.map(r =>
-      `<span class="tag ${TAGS[r]||'tag-gray'}">${r}</span>`
-    ).join('');
+      const tagsHtml = reasons.map(r =>
+        `<span class="m-tag ${TAGS[r]||'m-tag-gray'}">${r}</span>`
+      ).join('');
 
-    el.innerHTML += `
-      <div class="result-card">
-        <span class="rank-badge ${rankClasses[i]}">${i+1}</span>
-        <div class="result-info">
-          <div class="result-name">${d['읍면동']}</div>
-          <div class="result-tags" style="margin-top:5px;">${tagsHtml}</div>
-          <div style="margin-top:6px;font-size:11px;color:var(--gray-500)">
-            의료 ${d['의료기관수']}개 · 빈집 ${d['활용가능수']}개 · 관광지 ${d['관광지수']}개 · 민박 ${d['민박수']}개
+      const commentId = 'comment-' + i;
+      const isTop1 = i === 0;
+      const card = document.createElement('div');
+      card.className = `m-result-card card-pop${isTop1 ? ' top1' : ''}`;
+
+      card.innerHTML = `
+        <!-- 1행: 순위 + 지역명 + 태그풍선 + 점수 -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span class="m-rank ${rankCls[i]}">${i+1}</span>
+          <div style="font-size:17px;font-weight:900;color:${isTop1?'#fff':'#111827'};
+            font-family:'Noto Serif KR',serif;letter-spacing:-.5px;flex-shrink:0;">
+            ${isTop1 ? '🏆 ' : ''}${d['읍면동']}
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;flex:1;min-width:0;">
+            ${tagsHtml}
+          </div>
+          <div style="flex-shrink:0;text-align:right;">
+            <span style="font-size:22px;font-weight:900;
+              color:${isTop1?'#fff3e0':'#2f6b57'};
+              font-family:'Pretendard',sans-serif;line-height:1;">
+              ${Math.round(d['사용자점수'])}
+            </span>
+            <span style="font-size:11px;color:${isTop1?'rgba(255,255,255,.6)':'#9ca3af'};margin-left:2px;">점</span>
           </div>
         </div>
-        <div class="result-score">
-          <div class="score-num">${Math.round(d['사용자점수'])}</div>
-          <div class="score-unit">점</div>
+
+        <!-- 2행: AI 코멘트 -->
+        <div id="${commentId}" style="
+          font-size:13.5px;line-height:1.7;
+          color:${isTop1?'rgba(255,255,255,.92)':'#374151'};
+          font-family:'Pretendard',sans-serif;
+          margin-bottom:10px;
+          padding-left:2px;
+          min-height:20px;
+        ">
+          <span style="color:${isTop1?'rgba(255,255,255,.45)':'#a3c9bc'};font-size:11px;">✦ AI 코멘트 생성 중...</span>
         </div>
-      </div>`;
-  });
 
-  // 레이더 차트
-  const top3 = data.slice(0,3).map(d => SCORE_DATA.find(s=>s['읍면동']===d['읍면동'])||{});
-  const colors = ['rgba(45,106,79,0.7)','rgba(29,111,165,0.7)','rgba(224,122,31,0.7)'];
+        <!-- 3행: 수치 + AI 상담하기 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;
+          padding-top:9px;border-top:1px solid ${isTop1?'rgba(255,255,255,.15)':'#f1f5f9'};">
+          <div style="font-size:11px;color:${isTop1?'rgba(255,255,255,.55)':'#9ca3af'};
+            font-family:'Pretendard',sans-serif;">
+            의료 ${d['의료기관수']} &middot; 빈집 ${d['활용가능수']} &middot; 관광 ${d['관광지수']} &middot; 민박 ${d['민박수']}
+          </div>
+          <a href="/chat?region=${encodeURIComponent(d['읍면동'])}&rank=${i+1}&score=${Math.round(d['사용자점수'])}&top=${encodeURIComponent(reasons[0]||'')}"
+            style="
+              display:inline-flex;align-items:center;gap:4px;
+              padding:5px 12px;border-radius:8px;
+              background:${isTop1?'rgba(255,255,255,.18)':'#f0f7f4'};
+              border:1px solid ${isTop1?'rgba(255,255,255,.3)':'rgba(47,107,87,.2)'};
+              color:${isTop1?'#fff':'#2f6b57'};
+              font-size:12px;font-weight:700;text-decoration:none;
+              font-family:'Pretendard',sans-serif;
+              flex-shrink:0;
+              transition:opacity .15s;
+            "
+            onmouseover="this.style.opacity='.75'"
+            onmouseout="this.style.opacity='1'">
+            💬 AI 상담하기
+          </a>
+        </div>`;
 
-  if (radarChart) radarChart.destroy();
-  radarChart = new Chart(document.getElementById('radarChart'), {
-    type: 'radar',
-    data: {
-      labels: ['의료','빈집','자연공원','관광','민박'],
-      datasets: top3.map((d,i) => ({
-        label: d['읍면동'] || '',
-        data: [d['의료_score']||0, d['빈집_score']||0, d['공원_score']||0, d['관광_score']||0, d['민박_score']||0],
-        borderColor: colors[i],
-        backgroundColor: colors[i].replace('0.7','0.15'),
-        borderWidth: 2,
-        pointRadius: 4,
-      }))
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      scales: { r: { min: 0, max: 100, ticks: { stepSize: 25 } } },
-      plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } }
-    }
-  });
+      container.appendChild(card);
+
+      /* Claude AI 코멘트 요청 */
+      fetch('/api/comment', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          region:d['읍면동'], weights,
+          rank: i + 1,
+          stats:{
+            의료기관수:d['의료기관수'], 활용가능수:d['활용가능수'],
+            관광지수:d['관광지수'], 민박수:d['민박수'],
+            점수:Math.round(d['사용자점수'])
+          }
+        })
+      }).then(r=>r.json()).then(c=>{
+        const el = document.getElementById(commentId);
+        if(el) el.innerHTML = c.comment || '';
+      }).catch(()=>{
+        const el = document.getElementById(commentId);
+        if(el) el.innerHTML = '';
+      });
+    });
+
+    container.style.opacity = '1';
+    container.style.transform = 'translateY(0)';
+
+    /* 레이더 차트 */
+    const top3 = data.slice(0,3).map(d => {
+      const full = SCORE_DATA.find(s => s['읍면동'] === d['읍면동']) || {};
+      return {
+        name:d['읍면동'],
+        의료:full['의료_score']||0, 빈집:full['빈집_score']||0,
+        공원:full['공원_score']||0, 관광:full['관광_score']||0,
+        민박:full['민박_score']||0,
+      };
+    });
+    const colors = [
+      {border:'rgba(47,107,87,.85)',  bg:'rgba(47,107,87,.12)'},
+      {border:'rgba(29,111,165,.85)', bg:'rgba(29,111,165,.12)'},
+      {border:'rgba(224,122,31,.85)', bg:'rgba(224,122,31,.12)'},
+    ];
+    if(radarChart) radarChart.destroy();
+    radarChart = new Chart(document.getElementById('radarChart'),{
+      type:'radar',
+      data:{
+        labels:['의료','빈집','자연','관광','민박'],
+        datasets:top3.map((d,i)=>({
+          label:d.name,
+          data:[d.의료,d.빈집,d.공원,d.관광,d.민박],
+          borderColor:colors[i].border, backgroundColor:colors[i].bg,
+          borderWidth:2.5, pointRadius:4, pointBackgroundColor:colors[i].border,
+        }))
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        scales:{r:{min:0,max:100,
+          ticks:{stepSize:25,font:{size:10,family:'Pretendard'}},
+          grid:{color:'rgba(0,0,0,.07)'},
+          pointLabels:{font:{size:11,weight:'700',family:'Pretendard'}}
+        }},
+        plugins:{legend:{position:'bottom',labels:{font:{size:11,family:'Pretendard'},padding:10}}}
+      }
+    });
+  }, 150);
 }
 
-// 초기 로드 시 기본 추천
-window.addEventListener('load', getRecommendation);
+window.addEventListener('load', () => {
+  // 초기 합계 색상 세팅
+  const initTotal = KEYS.reduce((s,k) => s + parseInt(document.getElementById(`w_${k}`).value), 0);
+  const tw = document.getElementById('total-weight');
+  tw.textContent = initTotal + '%';
+  tw.style.color = initTotal < 95 ? '#374151' : initTotal <= 105 ? '#d97706' : '#dc2626';
+
+  getRecommendation();
+});
 </script>
 {% endblock %}

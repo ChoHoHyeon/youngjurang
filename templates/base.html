@@ -18,7 +18,10 @@
     <span class="brand-name">영주랑</span>
     <span class="brand-sub">YoungJuRang</span>
   </a>
-  <ul class="nav-links">
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="nav-links">
     <li><a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
       <span class="nav-icon">📊</span>인구위기
     </a></li>
@@ -48,6 +51,22 @@
 <footer class="footer">
   <p>© 2026 영주랑 · 공공데이터 기반 귀촌 의사결정 플랫폼 · 데이터 출처: 행정안전부, 농림축산식품부, 보건복지부</p>
 </footer>
+
+<script>
+function toggleNav() {
+  const btn   = document.getElementById('nav-hamburger');
+  const links = document.getElementById('nav-links');
+  btn.classList.toggle('open');
+  links.classList.toggle('open');
+}
+/* 링크 클릭 시 메뉴 닫기 */
+document.querySelectorAll('.nav-link').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('nav-hamburger').classList.remove('open');
+    document.getElementById('nav-links').classList.remove('open');
+  });
+});
+</script>
 
 {% block scripts %}{% endblock %}
 </body>

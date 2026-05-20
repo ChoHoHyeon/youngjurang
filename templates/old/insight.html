@@ -1,951 +1,459 @@
 {% extends 'base.html' %}
-{% block title %}영주 인사이트{% endblock %}
+{% block title %}영주 라이프{% endblock %}
 
 {% block content %}
 <style>
-/* =========================================================
-   YEONGJU INSIGHT — PREMIUM REPORT PAGE
-   더 고급스럽고 깔끔한 리포트형 인사이트 페이지
-========================================================= */
-
 :root{
-  --ir-ink:#101827;
-  --ir-muted:#667085;
-  --ir-soft:#f6f8fa;
-  --ir-line:#e8edf2;
-  --ir-green:#2f6b57;
-  --ir-green2:#7ab69d;
-  --ir-gold:#c7a96c;
-  --ir-white:#fff;
+  --yl-ink:#101827;
+  --yl-muted:#667085;
+  --yl-soft:#f7f9fb;
+  --yl-line:#e8edf2;
+  --yl-green:#2f6b57;
+  --yl-gold:#c7a96c;
+  --yl-white:#fff;
 }
-
-.ir-page{
+.yl-page{
   min-height:100vh;
-  color:var(--ir-ink);
   background:
-    radial-gradient(circle at 88% 4%, rgba(47,107,87,.075), transparent 25%),
-    radial-gradient(circle at 8% 22%, rgba(199,169,108,.05), transparent 22%),
-    linear-gradient(180deg,#ffffff 0%,#f7f9fb 46%,#f2f5f7 100%);
+    radial-gradient(circle at 92% 10%, rgba(47,107,87,.06), transparent 26%),
+    radial-gradient(circle at 8% 24%, rgba(199,169,108,.05), transparent 24%),
+    linear-gradient(180deg,#fff 0%,#f7f9fb 45%,#f2f5f7 100%);
+  color:var(--yl-ink);
+  padding:3.1rem 0 3rem;
+}
+.yl-shell{width:min(1160px,calc(100% - 48px));margin:0 auto;}
+.yl-selector{margin:0 0 1.9rem;}
+.yl-selector-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;margin-bottom:1rem;}
+.yl-section-kicker{color:var(--yl-green);font-size:12px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase;}
+.yl-section-title{margin-top:.35rem;font-size:1.8rem;letter-spacing:-1.1px;font-weight:950;color:var(--yl-ink);}
+.yl-section-desc{color:var(--yl-muted);font-size:13.5px;line-height:1.7;}
+.yl-life-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.85rem;}
+.yl-life-card{min-height:134px;padding:1rem 1.05rem;border:1px solid rgba(255,255,255,.96);border-radius:26px;background:rgba(255,255,255,.86);box-shadow:0 12px 28px rgba(15,23,42,.035),0 20px 48px rgba(15,23,42,.025);backdrop-filter:blur(18px);cursor:pointer;transition:.28s ease;text-align:left;color:var(--yl-ink);}
+.yl-life-card:hover{transform:translateY(-5px);box-shadow:0 18px 45px rgba(15,23,42,.075),0 30px 70px rgba(47,107,87,.05);}
+.yl-life-card.active{background:#111827;color:#fff;transform:translateY(-5px);box-shadow:0 22px 54px rgba(17,24,39,.16);}
+.yl-life-icon{font-size:1.65rem;line-height:1;}
+.yl-life-name{margin-top:.8rem;font-size:1rem;font-weight:950;letter-spacing:-.4px;}
+.yl-life-short{margin-top:.35rem;color:var(--yl-muted);font-size:12.2px;line-height:1.5;}
+.yl-life-card.active .yl-life-short{color:rgba(255,255,255,.72);}
+
+.yl-result{display:grid;grid-template-columns:.88fr 1.12fr;gap:1rem;align-items:stretch;margin-top:1.55rem;}
+.yl-result-main,.yl-photo-frame,.yl-detail-card,.yl-check-card,.yl-flow-card,.yl-real-card{border-radius:32px;background:rgba(255,255,255,.86);border:1px solid rgba(255,255,255,.96);box-shadow:0 14px 38px rgba(15,23,42,.045),0 28px 70px rgba(15,23,42,.032);backdrop-filter:blur(20px);}
+.yl-result-main{position:relative;overflow:hidden;padding:1.9rem;min-height:330px;display:flex;flex-direction:column;justify-content:center;}
+.yl-result-main::before{content:'';position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--yl-green),var(--yl-gold));}
+.yl-result-label{color:var(--yl-green);font-size:11px;font-weight:950;letter-spacing:2px;text-transform:uppercase;}
+.yl-region{margin-top:.9rem;font-size:2.75rem;line-height:1;font-weight:950;letter-spacing:-2px;color:var(--yl-ink);}
+.yl-type{display:inline-flex;width:max-content;margin-top:1rem;padding:.52rem .8rem;border-radius:999px;background:#eef5f1;color:var(--yl-green);font-size:12px;font-weight:950;}
+.yl-story{margin-top:1.25rem;color:#475569;font-size:14px;line-height:1.85;word-break:keep-all;}
+.yl-tags{margin-top:1.25rem;display:flex;flex-wrap:wrap;gap:.55rem;}
+.yl-tag{padding:.62rem .86rem;border-radius:999px;background:#f8fafc;border:1px solid #edf0f3;color:#344054;font-size:12.3px;font-weight:850;}
+
+.yl-photo-frame{position:relative;min-height:330px;overflow:hidden;background:linear-gradient(135deg,#dfe7e2,#f7f2ea);}
+.yl-photo-frame.no-photo::before{content:'사진 파일을 static/images 폴더에 넣어주세요';position:absolute;inset:0;display:grid;place-items:center;z-index:1;color:#557066;font-size:13px;font-weight:800;}
+.yl-photo-frame img{width:100%;height:100%;min-height:330px;object-fit:cover;display:block;transform:scale(1.01);transition:opacity .28s ease,transform .7s ease;}
+.yl-photo-frame:hover img{transform:scale(1.045);}
+.yl-photo-frame::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.02) 0%,rgba(0,0,0,.15) 46%,rgba(0,0,0,.5) 100%);pointer-events:none;}
+.yl-photo-overlay{position:absolute;left:30px;bottom:28px;z-index:3;color:#fff;max-width:420px;text-shadow:0 10px 32px rgba(0,0,0,.25);}
+.yl-photo-overlay span{display:block;margin-bottom:10px;font-size:11px;font-weight:900;letter-spacing:2px;opacity:.8;text-transform:uppercase;}
+.yl-photo-overlay h3{font-size:2.05rem;line-height:1.18;letter-spacing:-1.4px;font-weight:950;}
+.yl-photo-overlay p{margin-top:12px;color:rgba(255,255,255,.84);font-size:13.5px;line-height:1.72;word-break:keep-all;}
+
+.yl-detail-grid{margin-top:1rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.yl-detail-card{padding:1.25rem 1.35rem;border-radius:24px;}
+.yl-detail-card strong{display:block;font-size:14px;font-weight:900;color:#111827;}
+.yl-detail-card p{margin-top:.75rem;color:var(--yl-muted);font-size:13.5px;line-height:1.75;word-break:keep-all;}
+
+.yl-lower{margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.yl-check-card,.yl-flow-card{padding:1.5rem;}
+.yl-box-title{font-size:1.14rem;font-weight:950;letter-spacing:-.5px;color:var(--yl-ink);}
+.yl-box-desc{margin-top:.45rem;color:var(--yl-muted);font-size:13px;line-height:1.7;}
+.yl-check-list{margin-top:1.1rem;display:grid;gap:.68rem;}
+.yl-check{display:flex;gap:.65rem;align-items:flex-start;color:#475569;font-size:13px;line-height:1.55;}
+.yl-check b{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;border-radius:50%;background:#eef5f1;color:var(--yl-green);font-size:12px;}
+.yl-flow{margin-top:1.2rem;display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;}
+.yl-flow-step{min-height:104px;padding:.85rem;border-radius:18px;background:#f8fafc;border:1px solid #edf0f3;}
+.yl-flow-step small{width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:#111827;color:#fff;font-size:11px;font-weight:950;}
+.yl-flow-step h4{margin-top:.65rem;font-size:.86rem;font-weight:950;}
+.yl-flow-step p{margin-top:.35rem;color:var(--yl-muted);font-size:11.2px;line-height:1.45;}
+
+.yl-real{margin-top:1rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+.yl-real-card{padding:1.25rem;transition:.28s ease;border-radius:28px;}
+.yl-real-card:hover{transform:translateY(-5px);box-shadow:0 18px 45px rgba(15,23,42,.07),0 30px 70px rgba(47,107,87,.055);}
+.yl-real-card .emoji{font-size:1.5rem;}
+.yl-real-card h3{margin-top:.8rem;font-size:1rem;font-weight:950;}
+.yl-real-card p{margin-top:.45rem;color:var(--yl-muted);font-size:12.5px;line-height:1.6;word-break:keep-all;}
+
+.yl-cta{margin:1.35rem 0 0;padding:0;}
+.yl-cta h2{font-size:1.85rem;line-height:1.25;letter-spacing:-1.1px;font-weight:950;}
+.yl-cta p{margin-top:.7rem;color:rgba(255,255,255,.75);font-size:14px;}
+.yl-cta a{margin-top:1.3rem;}
+
+@media(max-width:1080px){.yl-life-grid{grid-template-columns:repeat(3,1fr)}.yl-result,.yl-lower,.yl-detail-grid{grid-template-columns:1fr}.yl-photo-frame{min-height:360px}}
+@media(max-width:720px){.yl-page{padding-top:2rem}.yl-shell{width:min(100% - 28px,1160px)}.yl-selector-head{display:block}.yl-section-desc{margin-top:.5rem}.yl-life-grid,.yl-real,.yl-flow{grid-template-columns:1fr}.yl-region{font-size:2.35rem}.yl-photo-overlay{left:22px;bottom:22px}.yl-photo-overlay h3{font-size:1.7rem}}
+
+/* ── 관광→정착 플로우 ── */
+.yl-journey {
+  margin-top: 1rem;
+  background: rgba(255,255,255,.86);
+  border: 1px solid rgba(255,255,255,.96);
+  border-radius: 32px;
+  box-shadow: 0 14px 38px rgba(15,23,42,.045);
+  padding: 1.8rem 2rem;
+}
+.yl-journey-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+.yl-journey-title {
+  margin-top: .3rem;
+  font-size: 1.2rem;
+  font-weight: 950;
+  letter-spacing: -.6px;
+  color: var(--yl-ink);
+}
+.yl-journey-img-wrap {
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #f3f6f4;
+  position: relative;
+  line-height: 0;
+}
+.yl-journey-img-wrap img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: opacity .3s ease;
+  border-radius: 20px;
+}
+.yl-journey-img-wrap.loading img {
+  opacity: 0;
 }
 
-.ir-shell{
-  width:min(1160px, calc(100% - 48px));
-  margin:0 auto;
+/* ── CTA ── */
+.yl-cta {
+  margin: 1rem 0 0;
+  padding: 1.6rem 2rem;
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--yl-line);
+  box-shadow: 0 2px 0 rgba(47,107,87,.1), 0 8px 28px rgba(15,23,42,.055);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  transition: box-shadow .28s ease, transform .28s ease;
 }
-
-/* ---------- HERO ---------- */
-.ir-hero{
-  padding:4.6rem 0 2.4rem;
+.yl-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 2px 0 rgba(47,107,87,.18), 0 16px 44px rgba(15,23,42,.08);
 }
-
-.ir-hero-grid{
-  display:grid;
-  grid-template-columns:1.08fr .78fr;
-  gap:3rem;
-  align-items:center;
+.yl-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, var(--yl-green), var(--yl-gold));
 }
-
-.ir-eyebrow{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:1.05rem;
-  color:var(--ir-green);
-  font-size:13px;
-  font-weight:850;
-  letter-spacing:1.5px;
+.yl-cta-left { display: flex; flex-direction: column; gap: .3rem; }
+.yl-cta-top {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin-bottom: .2rem;
 }
-
-.ir-eyebrow::before{
-  content:'';
-  width:30px;
-  height:2px;
-  border-radius:99px;
-  background:linear-gradient(90deg,var(--ir-green),var(--ir-gold));
+.yl-cta-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  background: var(--yl-green);
+  font-size: 1.15rem;
+  box-shadow: 0 4px 12px rgba(47,107,87,.22);
+  flex-shrink: 0;
+  transition: transform .3s ease;
 }
-
-.ir-title{
-  font-size:clamp(3.05rem,5.4vw,5rem);
-  line-height:1.05;
-  letter-spacing:-3.4px;
-  font-weight:950;
-  color:var(--ir-ink);
+.yl-cta:hover .yl-cta-badge { transform: rotate(-6deg) scale(1.08); }
+.yl-cta-kicker {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--yl-green);
+  text-transform: uppercase;
 }
-
-.ir-title em{
-  font-style:normal;
-  color:var(--ir-green);
+.yl-cta-title {
+  font-size: clamp(1.1rem, 2vw, 1.55rem);
+  font-weight: 950;
+  letter-spacing: -1px;
+  color: var(--yl-ink);
+  line-height: 1.25;
 }
-
-.ir-desc{
-  margin-top:1.35rem;
-  max-width:610px;
-  color:var(--ir-muted);
-  font-size:1.02rem;
-  line-height:1.88;
+.yl-cta-desc {
+  font-size: 12px;
+  color: var(--yl-muted);
+  font-weight: 700;
+  letter-spacing: .3px;
 }
-
-.ir-hero-actions{
-  margin-top:1.8rem;
-  display:flex;
-  gap:.75rem;
-  flex-wrap:wrap;
+.yl-cta-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .5rem;
+  flex-shrink: 0;
 }
-
-.ir-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  height:48px;
-  padding:0 22px;
-  border-radius:16px;
-  text-decoration:none;
-  font-size:14px;
-  font-weight:850;
-  transition:.25s ease;
+.yl-cta-hint {
+  font-size: 11px;
+  color: var(--yl-muted);
+  font-weight: 600;
+  letter-spacing: .3px;
 }
-
-.ir-btn.primary{
-  color:#fff;
-  background:#111827;
-  box-shadow:0 14px 28px rgba(17,24,39,.12);
-}
-
-.ir-btn.light{
-  color:#172033;
-  background:rgba(255,255,255,.76);
-  border:1px solid rgba(255,255,255,.92);
-  backdrop-filter:blur(12px);
-}
-
-.ir-btn:hover{
-  transform:translateY(-3px);
-}
-
-/* hero card */
-.ir-panel{
-  position:relative;
-  border-radius:34px;
-  padding:2rem;
-  background:rgba(255,255,255,.78);
-  border:1px solid rgba(255,255,255,.95);
+#cta-icon, .yl-cta-kicker, .yl-cta-title, .yl-cta-desc, #cta-btn-text { transition: opacity .18s ease; }
+.yl-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 26px;
+  background: var(--yl-green);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 950;
+  border-radius: 16px;
+  text-decoration: none;
+  letter-spacing: -.3px;
+  white-space: nowrap;
   box-shadow:
-    0 18px 55px rgba(15,23,42,.06),
-    0 40px 90px rgba(47,107,87,.045);
-  backdrop-filter:blur(20px);
-  overflow:hidden;
+    0 1px 0 rgba(255,255,255,.15) inset,
+    0 6px 18px rgba(47,107,87,.28),
+    0 2px 5px rgba(47,107,87,.18);
+  transition: all .25s ease;
 }
-
-.ir-panel::before{
-  content:'';
-  position:absolute;
-  inset:0 0 auto 0;
-  height:4px;
-  background:linear-gradient(90deg,var(--ir-green),var(--ir-gold));
-}
-
-.ir-panel-label{
-  color:var(--ir-green);
-  font-size:11px;
-  font-weight:950;
-  letter-spacing:2px;
-}
-
-.ir-panel-title{
-  margin-top:.9rem;
-  font-size:1.5rem;
-  line-height:1.38;
-  letter-spacing:-1px;
-  font-weight:950;
-}
-
-.ir-panel-text{
-  margin-top:.85rem;
-  color:var(--ir-muted);
-  font-size:13.5px;
-  line-height:1.78;
-}
-
-.ir-panel-metrics{
-  margin-top:1.4rem;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:.7rem;
-}
-
-.ir-panel-metric{
-  padding:.95rem .8rem;
-  border-radius:18px;
-  background:#f8fafc;
-}
-
-.ir-panel-metric strong{
-  display:block;
-  font-size:1.25rem;
-  letter-spacing:-.7px;
-}
-
-.ir-panel-metric span{
-  display:block;
-  margin-top:.2rem;
-  color:#7b8794;
-  font-size:11.5px;
-}
-
-/* ---------- KPI SUMMARY ---------- */
-.ir-kpis{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:1rem;
-  margin:1rem 0 2.2rem;
-}
-
-.ir-kpi{
-  min-height:132px;
-  padding:1.35rem;
-  border-radius:28px;
-  background:rgba(255,255,255,.82);
-  border:1px solid rgba(255,255,255,.95);
+.yl-cta-btn:hover {
+  transform: translateY(-2px);
+  background: #255a47;
   box-shadow:
-    0 12px 32px rgba(15,23,42,.04),
-    0 22px 52px rgba(15,23,42,.035);
-  backdrop-filter:blur(18px);
-  transition:.28s ease;
+    0 1px 0 rgba(255,255,255,.15) inset,
+    0 12px 28px rgba(47,107,87,.35),
+    0 4px 8px rgba(47,107,87,.2);
 }
-
-.ir-kpi:hover{
-  transform:translateY(-6px);
-  box-shadow:
-    0 18px 45px rgba(15,23,42,.07),
-    0 30px 70px rgba(47,107,87,.055);
+.yl-cta-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  font-size: 12px;
+  transition: transform .25s ease;
 }
-
-.ir-kpi small{
-  color:var(--ir-muted);
-  font-size:12px;
-  font-weight:750;
-}
-
-.ir-kpi b{
-  display:block;
-  margin-top:.7rem;
-  font-size:2rem;
-  line-height:1;
-  letter-spacing:-1.3px;
-  font-weight:950;
-}
-
-.ir-kpi p{
-  margin-top:.7rem;
-  color:#8a95a3;
-  font-size:12px;
-  line-height:1.55;
-}
-
-/* ---------- COMMON SECTIONS ---------- */
-.ir-section{
-  margin-bottom:1.4rem;
-}
-
-.ir-card{
-  padding:1.75rem;
-  border-radius:32px;
-  background:rgba(255,255,255,.82);
-  border:1px solid rgba(255,255,255,.96);
-  box-shadow:
-    0 14px 38px rgba(15,23,42,.045),
-    0 28px 70px rgba(15,23,42,.035);
-  backdrop-filter:blur(20px);
-}
-
-.ir-section-head{
-  display:grid;
-  grid-template-columns:250px 1fr;
-  gap:2rem;
-  align-items:start;
-  margin-bottom:1.45rem;
-}
-
-.ir-section-no{
-  display:inline-flex;
-  align-items:center;
-  gap:9px;
-  color:var(--ir-green);
-  font-size:11px;
-  font-weight:950;
-  letter-spacing:2px;
-}
-
-.ir-section-no::before{
-  content:'';
-  width:24px;
-  height:2px;
-  border-radius:99px;
-  background:var(--ir-green);
-}
-
-.ir-section-title{
-  font-size:1.65rem;
-  line-height:1.2;
-  letter-spacing:-1.15px;
-  font-weight:950;
-}
-
-.ir-section-desc{
-  margin-top:.55rem;
-  max-width:650px;
-  color:var(--ir-muted);
-  font-size:13.5px;
-  line-height:1.75;
-}
-
-/* ---------- PROFILE ---------- */
-.ir-profile{
-  display:grid;
-  grid-template-columns:.95fr 1.05fr;
-  gap:1rem;
-}
-
-.ir-brief{
-  padding:1.45rem;
-  border-radius:26px;
-  background:
-    radial-gradient(circle at top right, rgba(47,107,87,.085), transparent 32%),
-    #f8fafc;
-}
-
-.ir-brief h3{
-  font-size:1.2rem;
-  line-height:1.45;
-  letter-spacing:-.65px;
-  font-weight:950;
-}
-
-.ir-brief p{
-  margin-top:.7rem;
-  color:var(--ir-muted);
-  font-size:13.3px;
-  line-height:1.76;
-}
-
-.ir-bars{
-  margin-top:1.25rem;
-  display:grid;
-  gap:.85rem;
-}
-
-.ir-bar{
-  display:grid;
-  grid-template-columns:74px 1fr 62px;
-  gap:.75rem;
-  align-items:center;
-  font-size:12.5px;
-}
-
-.ir-bar strong{
-  color:#172033;
-}
-
-.ir-track{
-  height:9px;
-  border-radius:999px;
-  background:#e8edf2;
-  overflow:hidden;
-}
-
-.ir-fill{
-  height:100%;
-  border-radius:999px;
-  background:linear-gradient(90deg,var(--ir-green),var(--ir-green2));
-}
-
-.ir-tag{
-  color:var(--ir-green);
-  font-weight:850;
-  text-align:right;
-}
-
-.ir-mini-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:.85rem;
-}
-
-.ir-mini{
-  padding:1.15rem;
-  border-radius:24px;
-  background:#fff;
-  border:1px solid #eef1f4;
-}
-
-.ir-mini-icon{
-  width:40px;
-  height:40px;
-  display:grid;
-  place-items:center;
-  border-radius:15px;
-  background:#f2f6f4;
-  font-size:1.25rem;
-}
-
-.ir-mini h4{
-  margin-top:.85rem;
-  font-size:.98rem;
-  font-weight:900;
-}
-
-.ir-mini p{
-  margin-top:.45rem;
-  color:var(--ir-muted);
-  font-size:12.5px;
-  line-height:1.6;
-}
-
-/* ---------- REASON ---------- */
-.ir-reason{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:1rem;
-}
-
-.ir-highlight{
-  padding:1.55rem;
-  border-radius:26px;
-  background:
-    radial-gradient(circle at top right, rgba(199,169,108,.11), transparent 30%),
-    #f8fafc;
-}
-
-.ir-highlight h3{
-  font-size:1.32rem;
-  line-height:1.45;
-  letter-spacing:-.75px;
-  font-weight:950;
-}
-
-.ir-highlight p{
-  margin-top:.85rem;
-  color:var(--ir-muted);
-  font-size:13.5px;
-  line-height:1.78;
-}
-
-.ir-ranks{
-  display:grid;
-  gap:.65rem;
-}
-
-.ir-rank{
-  display:grid;
-  grid-template-columns:30px 1fr auto;
-  gap:.78rem;
-  align-items:center;
-  padding:.86rem 1rem;
-  border-radius:19px;
-  background:#fff;
-  border:1px solid #eef1f4;
-}
-
-.ir-rank-num{
-  width:30px;
-  height:30px;
-  display:grid;
-  place-items:center;
-  border-radius:50%;
-  background:#eef5f1;
-  color:var(--ir-green);
-  font-size:12px;
-  font-weight:950;
-}
-
-.ir-rank strong{
-  display:block;
-  font-size:13.5px;
-}
-
-.ir-rank span{
-  display:block;
-  color:var(--ir-muted);
-  font-size:12px;
-}
-
-.ir-rank-mark{
-  color:var(--ir-green);
-  font-size:12.5px;
-  font-weight:950;
-}
-
-/* ---------- INFRA ---------- */
-.ir-infra{
-  display:grid;
-  grid-template-columns:.9fr 1.1fr;
-  gap:1rem;
-}
-
-.ir-infra-left{
-  padding:1.45rem;
-  border-radius:26px;
-  background:#f8fafc;
-}
-
-.ir-infra-left h3{
-  font-size:1.25rem;
-  letter-spacing:-.6px;
-  font-weight:950;
-}
-
-.ir-infra-left p{
-  margin-top:.7rem;
-  color:var(--ir-muted);
-  font-size:13.4px;
-  line-height:1.75;
-}
-
-.ir-pills{
-  margin-top:1.15rem;
-  display:flex;
-  flex-wrap:wrap;
-  gap:.55rem;
-}
-
-.ir-pill{
-  padding:.62rem .86rem;
-  border-radius:999px;
-  background:#fff;
-  border:1px solid #edf0f3;
-  color:#344054;
-  font-size:12.3px;
-  font-weight:850;
-}
-
-.ir-types{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:.85rem;
-}
-
-.ir-type{
-  padding:1.15rem;
-  border-radius:23px;
-  background:#fff;
-  border:1px solid #eef1f4;
-  transition:.25s ease;
-}
-
-.ir-type:hover{
-  transform:translateY(-4px);
-  box-shadow:0 16px 38px rgba(15,23,42,.06);
-}
-
-.ir-type-badge{
-  display:inline-flex;
-  padding:.43rem .68rem;
-  border-radius:999px;
-  background:#eef5f1;
-  color:var(--ir-green);
-  font-size:10.8px;
-  font-weight:950;
-}
-
-.ir-type h4{
-  margin-top:.75rem;
-  font-size:1.1rem;
-  font-weight:950;
-}
-
-.ir-type p{
-  margin-top:.45rem;
-  color:var(--ir-muted);
-  font-size:12.3px;
-  line-height:1.58;
-}
-
-/* ---------- FLOW ---------- */
-.ir-flow{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:.8rem;
-}
-
-.ir-flow-step{
-  min-height:150px;
-  padding:1.2rem;
-  border-radius:23px;
-  background:#fff;
-  border:1px solid #eef1f4;
-}
-
-.ir-flow-step small{
-  width:30px;
-  height:30px;
-  display:grid;
-  place-items:center;
-  border-radius:50%;
-  background:#111827;
-  color:#fff;
-  font-size:12px;
-  font-weight:950;
-}
-
-.ir-flow-step h4{
-  margin-top:.85rem;
-  font-size:.98rem;
-  font-weight:900;
-}
-
-.ir-flow-step p{
-  margin-top:.45rem;
-  color:var(--ir-muted);
-  font-size:12.3px;
-  line-height:1.58;
-}
-
-/* ---------- CTA ---------- */
-.ir-cta{
-  margin:1.8rem 0 0;
-  padding:3rem 2rem;
-  border-radius:34px;
-  text-align:center;
-  color:#fff;
-  background:
-    radial-gradient(circle at top right, rgba(199,169,108,.20), transparent 28%),
-    linear-gradient(135deg,#1d3f30,#2f6b57);
-  box-shadow:0 24px 60px rgba(47,107,87,.17);
-}
-
-.ir-cta h2{
-  font-size:2rem;
-  line-height:1.25;
-  letter-spacing:-1.1px;
-  font-weight:950;
-}
-
-.ir-cta p{
-  margin-top:.7rem;
-  color:rgba(255,255,255,.75);
-  font-size:14px;
-}
-
-.ir-cta a{
-  margin-top:1.45rem;
-}
-
-/* ---------- RESPONSIVE ---------- */
-@media(max-width:980px){
-  .ir-hero-grid,
-  .ir-profile,
-  .ir-reason,
-  .ir-infra{
-    grid-template-columns:1fr;
-  }
-
-  .ir-panel{
-    display:none;
-  }
-
-  .ir-section-head{
-    grid-template-columns:1fr;
-    gap:.65rem;
-  }
-
-  .ir-kpis,
-  .ir-flow{
-    grid-template-columns:repeat(2,1fr);
-  }
-}
-
-@media(max-width:680px){
-  .ir-shell{
-    width:min(100% - 28px, 1160px);
-  }
-
-  .ir-hero{
-    padding:3.4rem 0 1.6rem;
-  }
-
-  .ir-title{
-    font-size:2.75rem;
-    letter-spacing:-2px;
-  }
-
-  .ir-kpis,
-  .ir-mini-grid,
-  .ir-types,
-  .ir-flow{
-    grid-template-columns:1fr;
-  }
-
-  .ir-card{
-    padding:1.3rem;
-  }
+.yl-cta-btn:hover .yl-cta-arrow { transform: translateX(3px); }
+@media(max-width:960px) {
+  .yl-journey-img-wrap img { border-radius: 14px; }
+
+  .yl-cta { flex-direction: column; align-items: flex-start; }
+  .yl-cta-right { align-items: flex-start; }
 }
 </style>
 
-<div class="ir-page">
-  <div class="ir-shell">
-
-    <section class="ir-hero">
-      <div class="ir-hero-grid">
+<div class="yl-page">
+  <div class="yl-shell">
+    <section class="yl-selector">
+      <div class="yl-selector-head">
         <div>
-          <div class="ir-eyebrow">YEONGJU INSIGHT REPORT</div>
-          <h1 class="ir-title">
-            영주 정착 가능성<br>
-            <em>데이터 리포트</em>
-          </h1>
-          <p class="ir-desc">
-            귀촌인·방문자·생활 인프라 데이터를 연결해
-            “누가, 왜, 어디에, 어떻게 정착하는가”를 한 화면에서 분석합니다.
-          </p>
-          <div class="ir-hero-actions">
-            <a href="/matching" class="ir-btn primary">귀촌지 추천받기 →</a>
-            <a href="/tour" class="ir-btn light">관광 데이터 보기</a>
-          </div>
+          <div class="yl-section-kicker">SELECT YOUR LIFE</div>
+          <h2 class="yl-section-title">원하는 삶의 방식을 선택하세요</h2>
         </div>
-
-        <aside class="ir-panel">
-          <div class="ir-panel-label">REPORT SUMMARY</div>
-          <div class="ir-panel-title">관광 경험에서 정착 의사결정까지</div>
-          <p class="ir-panel-text">
-            방문 경험, 생활 인프라, 정착 만족도, 읍면동별 여건을 종합해
-            영주형 귀촌 의사결정 흐름을 제시합니다.
-          </p>
-          <div class="ir-panel-metrics">
-            <div class="ir-panel-metric"><strong>20종+</strong><span>분석 데이터</span></div>
-            <div class="ir-panel-metric"><strong>15개</strong><span>읍면동 분석</span></div>
-            <div class="ir-panel-metric"><strong>153개</strong><span>관광자원</span></div>
-          </div>
-        </aside>
+        <p class="yl-section-desc">선택하면 아래 결과 카드가 즉시 바뀝니다.</p>
+      </div>
+      <div class="yl-life-grid">
+        <button class="yl-life-card active" data-life="quiet"><div class="yl-life-icon">🌿</div><div class="yl-life-name">조용한 삶</div><div class="yl-life-short">고요함·자연·느린 생활</div></button>
+        <button class="yl-life-card" data-life="convenient"><div class="yl-life-icon">🏥</div><div class="yl-life-name">생활 편의</div><div class="yl-life-short">병원·시장·교통 안정</div></button>
+        <button class="yl-life-card" data-life="healing"><div class="yl-life-icon">🌲</div><div class="yl-life-name">자연 치유</div><div class="yl-life-short">산책·풍경·회복</div></button>
+        <button class="yl-life-card" data-life="culture"><div class="yl-life-icon">🏛️</div><div class="yl-life-name">문화 감성</div><div class="yl-life-short">전통·역사·감성 동선</div></button>
+        <button class="yl-life-card" data-life="retire"><div class="yl-life-icon">🏡</div><div class="yl-life-name">은퇴 안정</div><div class="yl-life-short">의료·생활·안전 중심</div></button>
+        <button class="yl-life-card" data-life="weekend"><div class="yl-life-icon">☕</div><div class="yl-life-name">주말 체류</div><div class="yl-life-short">민박·관광·살아보기</div></button>
       </div>
     </section>
 
-    <section class="ir-kpis">
-      <div class="ir-kpi">
-        <small>분석 관점</small>
-        <b>4개</b>
-        <p>사람·이유·인프라·관광 흐름</p>
+    <section class="yl-result">
+      <div class="yl-result-main">
+        <div class="yl-result-label">RECOMMENDED YEONGJU LIFE</div>
+        <h2 class="yl-region" id="life-region">부석면</h2>
+        <div class="yl-type" id="life-type">자연고요형</div>
+        <p class="yl-story" id="life-story">조용한 풍경과 자연 속 생활을 원하는 사람에게 어울립니다. 번잡한 생활보다 산책, 계절감, 여유를 중시한다면 부석면 생활권을 먼저 살펴볼 만합니다.</p>
+        <div class="yl-tags" id="life-tags"><span class="yl-tag">조용함</span><span class="yl-tag">자연환경</span><span class="yl-tag">차량 필요</span><span class="yl-tag">관광자원</span></div>
       </div>
-      <div class="ir-kpi">
-        <small>영주시 관광자원</small>
-        <b>153</b>
-        <p>관광지·문화시설·음식점·숙박</p>
-      </div>
-      <div class="ir-kpi">
-        <small>연간 외지인 방문</small>
-        <b>950만+</b>
-        <p>정착 전환 잠재 수요</p>
-      </div>
-      <div class="ir-kpi">
-        <small>읍면동 유형화</small>
-        <b>4유형</b>
-        <p>생활·자연·문화·도시정착형</p>
-      </div>
-    </section>
 
-    <section class="ir-section">
-      <div class="ir-card">
-        <div class="ir-section-head">
-          <div class="ir-section-no">01 · PROFILE</div>
-          <div>
-            <h2 class="ir-section-title">정착 인구 프로파일</h2>
-            <p class="ir-section-desc">
-              귀촌인·귀농가구원·귀산촌인의 성별·연령별 데이터를 통합해
-              영주로 유입되는 사람의 특성을 요약합니다.
-            </p>
-          </div>
-        </div>
-
-        <div class="ir-profile">
-          <div class="ir-brief">
-            <h3>영주 정착 수요는 다양한 목적의 생활 전환 수요로 구성됩니다.</h3>
-            <p>귀촌·귀농·귀산촌 데이터를 나누어 보면 정착 목적과 연령대, 생활 방식이 서로 다르게 나타납니다.</p>
-
-            <div class="ir-bars">
-              <div class="ir-bar">
-                <strong>귀촌</strong>
-                <div class="ir-track"><div class="ir-fill" style="width:82%"></div></div>
-                <span class="ir-tag">생활형</span>
-              </div>
-              <div class="ir-bar">
-                <strong>귀농</strong>
-                <div class="ir-track"><div class="ir-fill" style="width:64%"></div></div>
-                <span class="ir-tag">생업형</span>
-              </div>
-              <div class="ir-bar">
-                <strong>귀산촌</strong>
-                <div class="ir-track"><div class="ir-fill" style="width:58%"></div></div>
-                <span class="ir-tag">자연형</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="ir-mini-grid">
-            <div class="ir-mini">
-              <div class="ir-mini-icon">👥</div>
-              <h4>귀촌인</h4>
-              <p>일반 생활형 정착 수요를 성별·연령별 구조로 파악합니다.</p>
-            </div>
-            <div class="ir-mini">
-              <div class="ir-mini-icon">🌾</div>
-              <h4>귀농가구</h4>
-              <p>농촌 생업형 정착 가능성을 가구원 특성으로 살펴봅니다.</p>
-            </div>
-            <div class="ir-mini">
-              <div class="ir-mini-icon">🌲</div>
-              <h4>귀산촌</h4>
-              <p>산림·자연 친화 정착 흐름을 별도로 구분합니다.</p>
-            </div>
-          </div>
+      <div class="yl-photo-frame" id="life-photo-frame">
+        <img src="{{ url_for('static', filename='images/buseok_quiet.jpg') }}" alt="부석면 조용한 삶 풍경" id="life-photo" onerror="this.style.display='none'; this.parentElement.classList.add('no-photo');">
+        <div class="yl-photo-overlay">
+          <span id="life-photo-label">QUIET YEONGJU LIFE</span>
+          <h3 id="life-photo-title">고요한 하루가<br>시작되는 곳</h3>
+          <p id="life-photo-desc">산과 안개, 느린 계절의 흐름 속에서 영주의 삶은 조금 더 천천히 흘러갑니다.</p>
         </div>
       </div>
     </section>
 
-    <section class="ir-section">
-      <div class="ir-card">
-        <div class="ir-section-head">
-          <div class="ir-section-no">02 · MOTIVE</div>
-          <div>
-            <h2 class="ir-section-title">선택 이유와 만족도</h2>
-            <p class="ir-section-desc">
-              귀촌의 이유, 귀농의 이유, 전입 사유, 생활만족도 데이터를 묶어
-              정착 선택의 배경과 정착 이후 체감 변화를 함께 봅니다.
-            </p>
-          </div>
-        </div>
+    <section class="yl-detail-grid">
+      <div class="yl-detail-card"><strong>실제 생활 특징</strong><p id="life-feature">상권은 크지 않지만 자연경관과 조용한 생활 분위기가 강합니다.</p></div>
+      <div class="yl-detail-card"><strong>장점</strong><p id="life-good">풍경, 고요함, 관광자원, 자연친화 생활에 강점이 있습니다.</p></div>
+      <div class="yl-detail-card"><strong>주의점</strong><p id="life-caution">차량 이동이 필요하고 야간 생활편의는 제한적일 수 있습니다.</p></div>
+    </section>
 
-        <div class="ir-reason">
-          <div class="ir-highlight">
-            <h3>도시를 떠나는 이유는 단순한 이주가 아니라 삶의 방식 변화입니다.</h3>
-            <p>
-              자연환경, 주거 여건, 정서적 여유, 지역 경험이 결합되며
-              관광 경험이 정착 관심으로 이어지는 흐름을 만듭니다.
-            </p>
-          </div>
-
-          <div class="ir-ranks">
-            <div class="ir-rank">
-              <div class="ir-rank-num">1</div>
-              <div><strong>자연환경</strong><span>조용하고 쾌적한 생활환경</span></div>
-              <div class="ir-rank-mark">핵심</div>
-            </div>
-            <div class="ir-rank">
-              <div class="ir-rank-num">2</div>
-              <div><strong>주거 여건</strong><span>빈집·농촌주택 활용 가능성</span></div>
-              <div class="ir-rank-mark">중요</div>
-            </div>
-            <div class="ir-rank">
-              <div class="ir-rank-num">3</div>
-              <div><strong>생활 전환</strong><span>은퇴·가족·정서적 여유</span></div>
-              <div class="ir-rank-mark">중요</div>
-            </div>
-            <div class="ir-rank">
-              <div class="ir-rank-num">4</div>
-              <div><strong>지역 경험</strong><span>방문·체류 후 정착 관심</span></div>
-              <div class="ir-rank-mark">연결</div>
-            </div>
-          </div>
+    <section class="yl-journey">
+      <div class="yl-journey-head">
+        <div>
+          <div class="yl-section-kicker">TOUR TO SETTLEMENT</div>
+          <h3 class="yl-journey-title" id="journey-title">관광에서 정착까지</h3>
         </div>
+        <p class="yl-section-desc" id="journey-desc">영주를 여행한 경험이 귀촌 관심으로 이어지는 흐름, 영주랑의 핵심입니다.</p>
+      </div>
+      <div class="yl-journey-img-wrap" id="journey-img-wrap">
+        <img id="journey-img"
+          src="/static/images/journey_quiet.png"
+          alt="자연 속 정착의 여정 카툰"
+          onerror="this.style.opacity='0.3'">
       </div>
     </section>
 
-    <section class="ir-section">
-      <div class="ir-card">
-        <div class="ir-section-head">
-          <div class="ir-section-no">03 · INFRA</div>
-          <div>
-            <h2 class="ir-section-title">지역별 정착 인프라</h2>
-            <p class="ir-section-desc">
-              빈집, 공원, 의료, 민박, 관광자원 데이터를 통합해
-              “실제로 살 수 있는 지역인가”를 판단하는 근거로 활용합니다.
-            </p>
-          </div>
+    <section class="yl-cta">
+      <div class="yl-cta-left">
+        <div class="yl-cta-top">
+          <div class="yl-cta-badge" id="cta-icon">🌿</div>
+          <div class="yl-cta-kicker" id="cta-kicker">조용한 삶</div>
         </div>
-
-        <div class="ir-infra">
-          <div class="ir-infra-left">
-            <h3>정착 인프라 판단 지표</h3>
-            <p>
-              주거 가능성, 생활 쾌적성, 의료 안정성, 체류 경험 가능성을 함께 보아
-              추천 근거를 구성합니다.
-            </p>
-            <div class="ir-pills">
-              <span class="ir-pill">🏚️ 빈집</span>
-              <span class="ir-pill">🌳 공원·녹지</span>
-              <span class="ir-pill">🏥 의료</span>
-              <span class="ir-pill">🏡 민박</span>
-              <span class="ir-pill">🗺️ 관광</span>
-            </div>
-          </div>
-
-          <div class="ir-types">
-            <div class="ir-type">
-              <span class="ir-type-badge">생활인프라형</span>
-              <h4>풍기읍</h4>
-              <p>의료·생활편의·관광 접근성이 균형적인 정착 후보지</p>
-            </div>
-            <div class="ir-type">
-              <span class="ir-type-badge">자연치유형</span>
-              <h4>부석면</h4>
-              <p>자연환경과 관광자원이 강한 조용한 정착 후보지</p>
-            </div>
-            <div class="ir-type">
-              <span class="ir-type-badge">전통문화형</span>
-              <h4>순흥면</h4>
-              <p>소수서원·선비문화권과 연계된 문화형 귀촌 후보지</p>
-            </div>
-            <div class="ir-type">
-              <span class="ir-type-badge">도시정착형</span>
-              <h4>가흥동</h4>
-              <p>도심 생활 편의성과 접근성을 중시하는 정착 후보지</p>
-            </div>
-          </div>
-        </div>
+        <h2 class="yl-cta-title" id="cta-title">영주의 고요함이 일상이 되는 곳</h2>
+        <p class="yl-cta-desc" id="cta-desc">부석면 · 자연고요형</p>
+      </div>
+      <div class="yl-cta-right">
+        <a href="/matching" class="yl-cta-btn">
+          <span id="cta-btn-text">귀촌 조건 매칭하기</span>
+          <span class="yl-cta-arrow">→</span>
+        </a>
+        <p class="yl-cta-hint">데이터 기반 읍면동 추천</p>
       </div>
     </section>
-
-    <section class="ir-section">
-      <div class="ir-card">
-        <div class="ir-section-head">
-          <div class="ir-section-no">04 · FLOW</div>
-          <div>
-            <h2 class="ir-section-title">관광에서 귀촌까지</h2>
-            <p class="ir-section-desc">
-              영주 관광 방문 경험을 생활권 체류와 귀촌 관심으로 연결하는
-              이 서비스의 차별화 흐름입니다.
-            </p>
-          </div>
-        </div>
-
-        <div class="ir-flow">
-          <div class="ir-flow-step">
-            <small>1</small>
-            <h4>관광 방문</h4>
-            <p>소백산·부석사·무섬마을 등 관광자원을 통해 지역을 경험합니다.</p>
-          </div>
-          <div class="ir-flow-step">
-            <small>2</small>
-            <h4>지역 체류</h4>
-            <p>숙박·민박 이용으로 생활권을 직접 체감합니다.</p>
-          </div>
-          <div class="ir-flow-step">
-            <small>3</small>
-            <h4>정착 관심</h4>
-            <p>방문 경험이 생활 인프라 검토로 이어집니다.</p>
-          </div>
-          <div class="ir-flow-step">
-            <small>4</small>
-            <h4>귀촌 선택</h4>
-            <p>데이터 기반 매칭과 AI 상담으로 적합 지역을 선택합니다.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="ir-cta">
-      <h2>나에게 맞는 영주 정착지는 어디일까요?</h2>
-      <p>정착 인사이트를 바탕으로 개인 조건에 맞는 읍면동을 추천받아보세요.</p>
-      <a href="/matching" class="ir-btn light">귀촌 조건 매칭하기 →</a>
-    </section>
-
   </div>
 </div>
+
+<script>
+const LIFE_DATA = {
+  quiet: {region:'부석면', type:'자연고요형', story:'조용한 풍경과 자연 속 생활을 원하는 사람에게 어울립니다. 번잡한 생활보다 산책, 계절감, 여유를 중시한다면 부석면 생활권을 먼저 살펴볼 만합니다.', tags:['조용함','자연환경','차량 필요','관광자원'], feature:'상권은 크지 않지만 자연경관과 조용한 생활 분위기가 강합니다.', good:'풍경, 고요함, 관광자원, 자연친화 생활에 강점이 있습니다.', caution:'차량 이동이 필요하고 야간 생활편의는 제한적일 수 있습니다.', checks:['병원·약국까지 차량 이동 시간을 확인하세요.','겨울철 도로와 대중교통 이용 가능성을 확인하세요.','주말에 먼저 숙박하며 생활 리듬을 체험해보세요.'], photo:'buseok_quiet.jpg', photoAlt:'부석면 조용한 삶 풍경', photoLabel:'QUIET YEONGJU LIFE', photoTitle:'고요한 하루가<br>시작되는 곳', photoDesc:'산과 안개, 느린 계절의 흐름 속에서 영주의 삶은 조금 더 천천히 흘러갑니다.',
+    cta:{icon:'🌿', kicker:'조용한 삶', title:'영주의 고요함이 일상이 되는 곳', desc:'부석면 · 자연고요형', btn:'귀촌 조건 매칭하기'},
+    journey: { title:'자연 속 정착의 여정', desc:'소백산 자락 부석면, 천천히 알아가는 귀촌의 흐름입니다.',
+      steps:[
+        {icon:'🌄', name:'자연 탐방', desc:'소백산·부석사 등 자연을 통해 영주의 고요함을 처음 경험합니다.'},
+        {icon:'🏕️', name:'산속 체류', desc:'산간 민박에서 하루를 보내며 느린 생활 리듬을 직접 체감합니다.'},
+        {icon:'🌿', name:'생활 탐색', desc:'조용한 환경 속 의료·장보기 동선 등 실제 생활 가능성을 확인합니다.'},
+        {icon:'🏡', name:'자연 정착', desc:'데이터와 AI 상담으로 자연환경에 맞는 최적 읍면동을 선택합니다.', last:true}
+      ]}},
+  convenient: {region:'풍기읍', type:'생활편의형', cta:{icon:'🏥', kicker:'생활 편의', title:'영주에서 필요한 모든 것이 가까운 곳', desc:'풍기읍 · 생활편의형', btn:'귀촌 조건 매칭하기'}, story:'병원, 시장, 교통, 생활편의가 중요하다면 풍기읍이 가장 먼저 검토할 만한 지역입니다. 자연과 도시 편의의 균형을 원하는 사람에게 어울립니다.', tags:['병원 접근','시장','생활편의','교통'], feature:'읍 생활권이 형성되어 있어 일상적인 장보기와 의료 접근성이 비교적 안정적입니다.', good:'초기 정착 부담이 낮고 중장년·은퇴형 생활에 필요한 기반을 갖추기 쉽습니다.', caution:'조용한 산골 생활을 기대한다면 다소 생활권 중심지 느낌이 강할 수 있습니다.', checks:['거주 후보지에서 시장·병원까지 이동 시간을 확인하세요.','도보 생활 가능 여부와 버스 노선을 확인하세요.','관광 성수기 혼잡도를 함께 고려하세요.'], photo:'punggi_life.jpg', photoAlt:'풍기읍 생활 편의 풍경', photoLabel:'CONVENIENT YEONGJU LIFE', photoTitle:'생활이 가까운<br>안정적인 하루', photoDesc:'시장과 병원, 일상의 동선이 가까운 곳에서 영주의 생활은 조금 더 단단해집니다.',
+    journey: { title:'편의 중심 정착의 여정', desc:'풍기읍, 생활 인프라를 먼저 확인하며 안심하고 정착하는 흐름입니다.',
+      steps:[
+        {icon:'🏪', name:'생활권 방문', desc:'풍기읍 시장·상권을 직접 돌아보며 일상 편의를 확인합니다.'},
+        {icon:'🏥', name:'인프라 체험', desc:'병원·약국·마트 위치와 이동 동선을 직접 체감합니다.'},
+        {icon:'📍', name:'입지 탐색', desc:'교통·주거·생활 편의를 종합해 후보 주거지를 좁혀갑니다.'},
+        {icon:'✅', name:'안심 정착', desc:'생활 인프라가 갖춰진 읍내 권역에 데이터 기반으로 정착합니다.', last:true}
+      ]}},
+  healing: {region:'순흥면', type:'자연치유형', cta:{icon:'🌲', kicker:'자연 치유', title:'영주의 자연이 천천히 회복시켜주는 곳', desc:'순흥면 · 자연치유형', btn:'귀촌 조건 매칭하기'}, story:'자연과 전통문화가 어우러진 느린 삶을 원한다면 순흥면이 어울립니다. 산책, 문화유산, 조용한 생활 리듬을 함께 누릴 수 있는 유형입니다.', tags:['전통문화','자연','산책','느린 삶'], feature:'소수서원 등 문화자원과 조용한 정주 분위기가 결합된 생활권입니다.', good:'정서적 여유와 지역 고유의 문화 감성을 함께 느끼기 좋습니다.', caution:'생활편의시설은 중심지보다 적을 수 있으므로 이동 계획이 필요합니다.', checks:['문화관광지 주변 생활 소음과 계절별 방문객 흐름을 확인하세요.','마트·병원 등 필수 생활시설 접근성을 확인하세요.','농촌 생활 리듬에 맞는지 단기 체류해보세요.'], photo:'sunheung_healing.jpg', photoAlt:'순흥면 자연 치유 풍경', photoLabel:'HEALING YEONGJU LIFE', photoTitle:'천천히 걷고<br>깊게 쉬는 곳', photoDesc:'숲길과 전통의 결이 만나는 생활권에서 회복의 시간이 자연스럽게 이어집니다.',
+    journey: { title:'치유와 회복의 정착 여정', desc:'순흥면, 자연과 전통문화 속에서 몸과 마음이 회복되는 흐름입니다.',
+      steps:[
+        {icon:'🌲', name:'숲길 탐방', desc:'소수서원·죽계구곡 등 자연과 문화가 어우러진 길을 천천히 걷습니다.'},
+        {icon:'🛖', name:'고요한 체류', desc:'조용한 민박에 머물며 농촌 생활 리듬과 자연의 소리를 경험합니다.'},
+        {icon:'🌿', name:'치유 탐색', desc:'정서적 회복에 필요한 환경과 생활 조건을 직접 점검합니다.'},
+        {icon:'🍃', name:'치유 정착', desc:'자연치유형 귀촌에 맞는 읍면동을 데이터로 찾아 정착합니다.', last:true}
+      ]}},
+  culture: {region:'영주동', type:'문화감성형', cta:{icon:'🏛️', kicker:'문화 감성', title:'영주의 감성과 편의가 맞닿은 곳', desc:'영주동 · 문화감성형', btn:'귀촌 조건 매칭하기'}, story:'도심 접근성과 문화적 감성을 함께 원한다면 영주동 생활권이 어울립니다. 완전한 농촌보다 적응 부담이 낮은 정착을 기대할 수 있습니다.', tags:['도심 접근','문화','카페','생활편의'], feature:'도심 생활권과 문화·상권 접근성이 있어 처음 귀촌하는 사람의 적응 부담이 낮습니다.', good:'생활 편의와 지역 문화 경험을 동시에 누리기 좋습니다.', caution:'자연 속 고립감이나 넓은 마당 생활을 기대한다면 이미지가 다를 수 있습니다.', checks:['주차, 소음, 상권 밀집 정도를 확인하세요.','도심 생활권과 자연 접근성의 균형을 확인하세요.','주거비와 주택 형태를 비교하세요.'], photo:'yeongjudong_culture.jpg', photoAlt:'영주동 문화 감성 풍경', photoLabel:'CULTURE YEONGJU LIFE', photoTitle:'도심의 편의와<br>지역의 감성 사이', photoDesc:'문화와 상권, 생활 편의가 맞닿은 곳에서 처음 귀촌의 적응 부담을 낮춥니다.',
+    journey: { title:'문화 감성 정착의 여정', desc:'영주동, 지역 문화와 일상 편의를 함께 누리며 자연스럽게 정착하는 흐름입니다.',
+      steps:[
+        {icon:'🏛️', name:'문화 탐방', desc:'선비세상·구도심 골목 등 영주의 문화 감성을 직접 걷고 느낍니다.'},
+        {icon:'☕', name:'일상 체험', desc:'카페·시장·문화공간을 이용하며 도심형 귀촌 일상을 미리 경험합니다.'},
+        {icon:'🗺️', name:'생활 탐색', desc:'주거비·상권·교통을 비교하며 문화감성에 맞는 입지를 좁혀갑니다.'},
+        {icon:'🎨', name:'감성 정착', desc:'문화와 편의가 균형잡힌 영주동 권역에 데이터로 정착합니다.', last:true}
+      ]}},
+  retire: {region:'가흥동', type:'은퇴안정형', cta:{icon:'🏡', kicker:'은퇴 안정', title:'영주에서 안심하고 기댈 수 있는 곳', desc:'가흥동 · 은퇴안정형', btn:'귀촌 조건 매칭하기'}, story:'은퇴 이후 안정적인 생활을 원한다면 가흥동처럼 의료와 생활 편의 접근성이 좋은 지역이 적합합니다. 가족 방문과 일상 이동도 함께 고려할 수 있습니다.', tags:['의료','생활안정','가족방문','편의시설'], feature:'도시 생활권에 가까워 의료·상업·교통 접근이 비교적 안정적입니다.', good:'은퇴 부부, 부모 동반, 의료 접근이 중요한 가구에 적합합니다.', caution:'농촌의 한적함보다는 도시형 생활 편의에 가까운 정착지입니다.', checks:['병원·약국 접근성을 최우선으로 확인하세요.','가족 방문 시 교통 동선을 확인하세요.','아파트·주택 등 선호 주거형태를 비교하세요.'], photo:'gaheung_retire.jpg', photoAlt:'가흥동 은퇴 안정 생활 풍경', photoLabel:'STABLE YEONGJU LIFE', photoTitle:'편안한 생활이<br>가까운 곳', photoDesc:'의료와 생활 편의, 가족 방문 동선을 함께 고려하는 안정형 정착지입니다.',
+    journey: { title:'안심 은퇴 정착의 여정', desc:'가흥동, 의료와 생활 편의를 꼼꼼히 확인하며 안전하게 정착하는 흐름입니다.',
+      steps:[
+        {icon:'🏥', name:'의료 답사', desc:'병원·약국·요양시설 위치를 직접 확인하며 의료 접근성을 점검합니다.'},
+        {icon:'🚌', name:'교통 체험', desc:'가족 방문 동선과 대중교통·주차 여건을 직접 이동하며 확인합니다.'},
+        {icon:'🏘️', name:'주거 탐색', desc:'아파트·단독주택 등 선호 주거형태와 비용을 비교하며 결정합니다.'},
+        {icon:'🌅', name:'안심 정착', desc:'의료·편의·가족 접근성이 검증된 곳에 데이터로 안심하고 정착합니다.', last:true}
+      ]}},
+  weekend: {region:'문수면', type:'주말체류형', cta:{icon:'☕', kicker:'주말 체류', title:'영주에서 여행처럼 시작해 삶이 되는 곳', desc:'문수면 · 주말체류형', btn:'귀촌 조건 매칭하기'}, story:'바로 이주하기보다 주말마다 머물며 천천히 알아보고 싶다면 문수면·무섬마을 권역처럼 관광과 체류 경험이 연결되는 지역이 좋습니다.', tags:['주말살이','민박','관광','체류'], feature:'관광·숙박 경험을 통해 정착 전 생활 리듬을 시험해보기 좋습니다.', good:'귀촌 전 부담 없이 지역을 경험하고 비교할 수 있습니다.', caution:'관광지 인근은 성수기와 비수기의 생활감 차이가 클 수 있습니다.', checks:['평일과 주말의 분위기를 모두 경험해보세요.','민박 체류 후 주변 생활시설을 직접 걸어보세요.','관광지 인근 소음과 교통량을 확인하세요.'], photo:'munsu_weekend.jpg', photoAlt:'문수면 주말 체류 풍경', photoLabel:'WEEKEND YEONGJU LIFE', photoTitle:'여행처럼 머물고<br>살아보듯 알아가는 곳', photoDesc:'숙박과 관광 경험이 생활권 탐색으로 이어지며 천천히 정착 가능성을 확인합니다.',
+    journey: { title:'주말살이에서 정착까지', desc:'무섬마을·문수면, 여행처럼 시작해 살아보듯 알아가는 귀촌의 흐름입니다.',
+      steps:[
+        {icon:'🛶', name:'여행 방문', desc:'무섬마을·문수면을 여행하듯 가볍게 방문해 지역 분위기를 느낍니다.'},
+        {icon:'🏠', name:'민박 체류', desc:'주말마다 민박에 머물며 계절별·평일·주말 생활감을 비교합니다.'},
+        {icon:'🔍', name:'생활 탐색', desc:'반복 체류를 통해 마트·병원·이웃 등 실제 생활 여건을 점검합니다.'},
+        {icon:'🌄', name:'살아보기 정착', desc:'충분한 체류 경험 후 데이터 추천으로 최적 읍면동에 정착합니다.', last:true}
+      ]}}
+};
+
+function renderJourney(key) {
+  const img  = document.getElementById('journey-img');
+  const wrap = document.getElementById('journey-img-wrap');
+  if (!img) return;
+  wrap.classList.add('loading');
+  setTimeout(() => {
+    img.src = `/static/images/journey_${key}.png`;
+    img.alt = document.getElementById('journey-title').textContent + ' 카툰';
+    img.onload  = () => wrap.classList.remove('loading');
+    img.onerror = () => { wrap.classList.remove('loading'); img.style.opacity = '0.3'; };
+  }, 120);
+}
+
+function renderLife(key){
+  const d = LIFE_DATA[key];
+  document.getElementById('life-region').textContent = d.region;
+  document.getElementById('life-type').textContent = d.type;
+  document.getElementById('life-story').textContent = d.story;
+  document.getElementById('life-feature').textContent = d.feature;
+  document.getElementById('life-good').textContent = d.good;
+  document.getElementById('life-caution').textContent = d.caution;
+  document.getElementById('life-tags').innerHTML = d.tags.map(t => `<span class="yl-tag">${t}</span>`).join('');
+
+  const frame = document.getElementById('life-photo-frame');
+  const photo = document.getElementById('life-photo');
+  if(photo && d.photo){
+    frame.classList.remove('no-photo');
+    photo.style.display = 'block';
+    photo.style.opacity = '0';
+    setTimeout(() => {
+      photo.src = `/static/images/${d.photo}`;
+      photo.alt = d.photoAlt || `${d.region} 감성 풍경`;
+      photo.style.opacity = '1';
+    }, 120);
+  }
+  document.getElementById('life-photo-label').textContent = d.photoLabel || 'YEONGJU LIFE';
+  document.getElementById('life-photo-title').innerHTML = d.photoTitle || '영주의 하루가<br>펼쳐지는 곳';
+  document.getElementById('life-photo-desc').textContent = d.photoDesc || d.story;
+
+  // 여정 제목·설명 업데이트
+  document.getElementById('journey-title').textContent = d.journey.title;
+  document.getElementById('journey-desc').textContent  = d.journey.desc;
+  renderJourney(key);
+
+  // CTA 업데이트
+  const cta = d.cta;
+  const ctaEl = (id) => document.getElementById(id);
+  [ctaEl('cta-icon'), ctaEl('cta-kicker'), ctaEl('cta-title'), ctaEl('cta-desc'), ctaEl('cta-btn-text')].forEach(el => { if(el) el.style.opacity = '0'; });
+  setTimeout(() => {
+    if(ctaEl('cta-icon')) ctaEl('cta-icon').textContent = cta.icon;
+    if(ctaEl('cta-kicker')) ctaEl('cta-kicker').textContent = cta.kicker;
+    if(ctaEl('cta-title')) ctaEl('cta-title').textContent = cta.title;
+    if(ctaEl('cta-desc')) ctaEl('cta-desc').textContent = cta.desc;
+    if(ctaEl('cta-btn-text')) ctaEl('cta-btn-text').textContent = cta.btn;
+    [ctaEl('cta-icon'), ctaEl('cta-kicker'), ctaEl('cta-title'), ctaEl('cta-desc'), ctaEl('cta-btn-text')].forEach(el => { if(el) el.style.opacity = '1'; });
+  }, 180);
+
+  document.querySelectorAll('.yl-life-card').forEach(btn => btn.classList.toggle('active', btn.dataset.life === key));
+}
+
+document.querySelectorAll('.yl-life-card').forEach(btn => btn.addEventListener('click', () => renderLife(btn.dataset.life)));
+renderLife('quiet');
+</script>
 {% endblock %}
