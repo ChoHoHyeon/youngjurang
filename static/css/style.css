@@ -168,7 +168,8 @@ body{
   max-width:1200px;
 
   margin:0 auto;
-  padding:6rem 2rem;
+  /* 하단에 피쳐 카드가 걸쳐 올라올 공간 확보 */
+  padding:6rem 2rem 8rem;
 }
 
 .hero-eyebrow{
@@ -218,12 +219,14 @@ body{
   margin-top:4rem;
 
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  /* 화면 너비에 따라 자동으로 열 수 조정 */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 
   gap:20px;
 
   max-width:950px;
 }
+
 
 .hero-stats>div{
   padding:1.5rem;
